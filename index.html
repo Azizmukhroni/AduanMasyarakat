@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AduanMasyarakat - Layanan Pengaduan Real-Time</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AduanMasyarakat">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/180/1006/1006771.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/192/1006/1006771.png">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/192/1006/1006771.png">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Critical CSS -->
+    <style>
+        /* === CRITICAL CSS - Minimal untuk rendering awal === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            max-width: 100%;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: #3498db;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+            z-index: 1001;
+        }
+        
+        .nav-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+            z-index: 10000;
+            transition: top 0.3s;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Hero Section - Minimal styling untuk above-the-fold */
+        .hero {
+            background: linear-gradient(rgba(44, 62, 80, 0.85), rgba(44, 62, 80, 0.85)), url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            min-height: 44px;
+            line-height: 1.2;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn:hover, .btn:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+            outline: none;
+        }
+        
+        /* Basic skeleton for statistics section */
+        .statistics {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Ensure content is visible during loading */
+        .main-content {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .main-content.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
+    
+    <!-- Non-critical CSS -->
+    <link rel="stylesheet" href="css/styles.css" media="print" onload="this.media='all'">
+    
+    <!-- Noscript fallback -->
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+        <link rel="stylesheet" href="css/styles.css">
+    </noscript>
+</head>
+<body>
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
+
+    <!-- Firebase Connection Status -->
+    <div id="firebase-status" class="firebase-status" style="display: none;">
+        Firebase: Connecting...
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Memuat aplikasi...</p>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+    <div class="nav-menu" id="nav-menu">
+        <button class="nav-close" id="nav-close" aria-label="Tutup menu">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3 class="nav-title">Menu Navigasi</h3>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i> Beranda
+            </a>
+            <a href="#form-section" class="nav-link">
+                <i class="fas fa-edit"></i> Buat Pengaduan
+            </a>
+            <a href="#" class="nav-link" id="view-complaints-link">
+                <i class="fas fa-list"></i> Lihat Pengaduan
+            </a>
+            <a href="#download" class="nav-link">
+                <i class="fas fa-download"></i> Download App
+            </a>
+            <a href="#footer" class="nav-link">
+                <i class="fas fa-question-circle"></i> Bantuan
+            </a>
+            <a href="#footer" class="nav-link">
+                <i class="fas fa-phone-alt"></i> Kontak
+            </a>
+        </nav>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-house-damage" aria-hidden="true"></i>
+                    <h1>AduanMasyarakat</h1>
+                </div>
+                <button class="nav-toggle" id="nav-toggle" aria-label="Buka menu navigasi">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="main-content">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Laporkan masalah Anda dengan mudah dan cepat</h2>
+                    <p>Aplikasi pengaduan masyarakat real-time yang memudahkan Anda melaporkan masalah di lingkungan sekitar dan melacak status pengaduannya.</p>
+                    <a href="#form-section" class="btn">Buat Pengaduan</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="statistics" id="statistics">
+            <div class="container">
+                <h2 class="section-title">Statistik Pengaduan</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-inbox stat-icon"></i>
+                        <span class="stat-number" id="total-complaints">0</span>
+                        <span class="stat-label">Total Pengaduan Masuk</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-tasks stat-icon"></i>
+                        <span class="stat-number" id="processed-complaints">0</span>
+                        <span class="stat-label">Sedang Diproses</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle stat-icon"></i>
+                        <span class="stat-number" id="resolved-complaints">0</span>
+                        <span class="stat-label">Terselesaikan</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Fitur Unggulan</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-bullhorn" aria-hidden="true"></i>
+                        <h3>Laporan Real-Time</h3>
+                        <p>Kirim laporan dan dapatkan respon langsung dari instansi terkait</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
+                        <h3>Lokasi Presisi</h3>
+                        <p>Tentukan lokasi kejadian dengan akurat menggunakan GPS</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-history" aria-hidden="true"></i>
+                        <h3>Lacak Status</h3>
+                        <p>Pantau perkembangan laporan Anda dari waktu ke waktu</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-camera" aria-hidden="true"></i>
+                        <h3>Lampiran Foto</h3>
+                        <p>Sertakan foto sebagai bukti untuk memperkuat laporan</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                        <h3>Privasi Terjaga</h3>
+                        <p>Laporkan secara anonim atau dengan identitas yang terlindungi</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <h3>Notifikasi</h3>
+                        <p>Dapatkan pemberitahuan ketika ada update pada laporan Anda</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Section -->
+        <section id="form-section" class="form-section">
+            <div class="container">
+                <h2 class="section-title">Buat Pengaduan Baru</h2>
+                <div class="form-container">
+                    <form id="complaint-form">
+                        <div class="form-group">
+                            <label for="name">Nama Lengkap *</label>
+                            <input type="text" id="name" name="name" required aria-required="true" minlength="3" maxlength="50">
+                            <div class="error-message" id="name-error">Nama lengkap harus diisi (3-50 karakter)</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required aria-required="true" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                            <div class="error-message" id="email-error">Format email tidak valid</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Nomor Telepon</label>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{9,15}">
+                            <div class="error-message" id="phone-error">Format nomor telepon tidak valid (9-15 digit)</div>
+                        </div>
+                        
+                        <!-- Map Integration -->
+                        <div class="form-group">
+                            <label for="location">Lokasi Kejadian *</label>
+                            <div class="map-container">
+                                <div id="location-map"></div>
+                            </div>
+                            <p class="map-instructions">Klik pada peta untuk menentukan lokasi kejadian</p>
+                            <input type="text" id="location" name="location" required aria-required="true" readonly>
+                            <div class="error-message" id="location-error">Lokasi harus dipilih</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">Kategori Pengaduan *</label>
+                            <select id="category" name="category" required aria-required="true">
+                                <option value="">Pilih Kategori</option>
+                                <option value="infrastruktur">Infrastruktur (Jalan, Jembatan)</option>
+                                <option value="kebersihan">Kebersihan (Sampah, Selokan)</option>
+                                <option value="keamanan">Keamanan (Lampu Jalan, Patroli)</option>
+                                <option value="lainnya">Lainnya</option>
+                            </select>
+                            <div class="error-message" id="category-error">Kategori harus dipilih</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Deskripsi Pengaduan *</label>
+                            <textarea id="description" name="description" required aria-required="true" minlength="10" maxlength="500" placeholder="Jelaskan masalah secara detail (min. 10 karakter, maks. 500 karakter)"></textarea>
+                            <div class="char-counter"><span id="char-count">0</span>/500 karakter</div>
+                            <div class="error-message" id="description-error">Deskripsi harus diisi (10-500 karakter)</div>
+                        </div>
+                        
+                        <!-- File Upload Section -->
+                        <div class="file-upload-container">
+                            <label class="file-upload-label">Unggah Bukti Foto (Maksimal 5 file, 5MB per file)</label>
+                            <div class="file-upload-wrapper">
+                                <div class="file-upload-input" id="file-drop-area">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 40px; margin-bottom: 15px; color: #3498db;"></i>
+                                    <p>Seret dan lepas file di sini atau klik untuk memilih</p>
+                                    <p class="map-instructions">Format yang didukung: JPG, PNG, PDF. Maksimal 5MB per file</p>
+                                </div>
+                                <input type="file" id="file-input" name="evidence_files" multiple accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                            </div>
+                            <div class="image-preview-container" id="image-preview-container">
+                                <!-- Preview gambar akan ditampilkan di sini -->
+                            </div>
+                        </div>
+                        
+                        <!-- Privacy Consent -->
+                        <div class="form-group consent-group">
+                            <input type="checkbox" id="privacy-consent" name="privacy-consent" required>
+                            <label for="privacy-consent">Saya setuju dengan <a href="privacy.html" target="_blank">kebijakan privasi</a> dan penyimpanan data pengaduan saya *</label>
+                            <div class="error-message" id="consent-error">Anda harus menyetujui kebijakan privasi</div>
+                        </div>
+                        
+                        <button type="submit" class="btn" id="submit-button" style="width: 100%;">
+                            <span id="submit-text">Kirim Pengaduan</span>
+                            <span id="submit-loading" style="display: none;"><span class="spinner"></span> Mengirim...</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section id="download" class="download-section">
+            <div class="container">
+                <h2 class="section-title">Download Aplikasi</h2>
+                <p>Unduh aplikasi AduanMasyarakat untuk pengalaman yang lebih baik</p>
+                <div class="download-buttons">
+                    <a href="#" class="download-btn">
+                        <i class="fab fa-google-play"></i>
+                        <span>Google Play Store</span>
+                    </a>
+                    <a href="#" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        <span>Download APK</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-house-damage" aria-hidden="true"></i>
+                    <h2>AduanMasyarakat</h2>
+                </div>
+                <p>Layanan pengaduan masyarakat terpercaya</p>
+                <div class="footer-links">
+                    <a href="privacy.html">Kebijakan Privasi</a>
+                    <a href="terms.html">Syarat & Ketentuan</a>
+                    <a href="help.html">Bantuan</a>
+                    <a href="contact.html">Kontak</a>
+                </div>
+                <p class="copyright">© 2025 AduanMasyarakat. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- External Libraries (Deferred) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" defer></script>
+    
+    <!-- App Modules (Deferred) -->
+    <script type="module" src="js/app.js" defer></script>
+
+    <!-- NoScript Fallback -->
+    <noscript>
+        <div class="noscript-warning">
+            <div class="container">
+                <h3>JavaScript Diperlukan</h3>
+                <p>Website ini memerlukan JavaScript untuk berfungsi dengan baik. Silakan aktifkan JavaScript di browser Anda.</p>
+            </div>
+        </div>
+    </noscript>
+
+    <!-- Minimal inline script untuk functionality dasar -->
+    <script>
+        // Basic functionality sebelum JS utama dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation toggle
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            const navClose = document.getElementById('nav-close');
+            const navOverlay = document.getElementById('nav-overlay');
+            
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    navMenu.classList.add('active');
+                    navOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+            
+            if (navClose && navOverlay) {
+                const closeNav = function() {
+                    navMenu.classList.remove('active');
+                    navOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                };
+                
+                navClose.addEventListener('click', closeNav);
+                navOverlay.addEventListener('click', closeNav);
+            }
+            
+            // Smooth scrolling untuk anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Basic form validation
+            const form = document.getElementById('complaint-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Validasi dasar akan ditangani oleh module utama
+                });
+            }
+        });
+    </script>
+</body>
+</html>
