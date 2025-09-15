@@ -1,0 +1,68 @@
+{
+  "name": "Aduan Masyarakat",
+  "short_name": "AduanMasyarakat",
+  "description": "Aplikasi pengaduan masyarakat real-time",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#3498db",
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["social", "productivity"],
+  "lang": "id",
+  "dir": "ltr",
+  
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/72/1006/1006771.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/96/1006/1006771.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/128/1006/1006771.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/144/1006/1006771.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/192/1006/1006771.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/384/1006/1006771.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/1080x1920/2c3e50/ffffff?text=Aduan+Masyarakat",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "https://via.placeholder.com/1920x1080/2c3e50/ffffff?text=Aduan+Masyarakat",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}
