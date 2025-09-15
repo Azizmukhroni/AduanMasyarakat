@@ -16,21 +16,14 @@
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/192/1006/1006771.png">
     <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/192/1006/1006771.png">
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
-    <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    
-    <!-- Firebase App -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
-    
+    <!-- Critical CSS -->
     <style>
+        /* === CRITICAL CSS - Minimal untuk rendering awal === */
         * {
             margin: 0;
             padding: 0;
@@ -106,6 +99,105 @@
         
         .nav-toggle:hover {
             background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+            z-index: 10000;
+            transition: top 0.3s;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #333;
+            color: white;
+            padding: 18px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(20px);
+            max-width: 350px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .toast.success {
+            background-color: #2ecc71;
+        }
+        
+        .toast.error {
+            background-color: #e74c3c;
+        }
+        
+        .toast.info {
+            background-color: #3498db;
+        }
+        
+        .toast-icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* Navigation Menu */
@@ -202,7 +294,7 @@
             visibility: visible;
         }
         
-        /* Hero Section */
+        /* Hero Section - Minimal styling untuk above-the-fold */
         .hero {
             background: linear-gradient(rgba(44, 62, 80, 0.85), rgba(44, 62, 80, 0.85)), url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
             background-size: cover;
@@ -218,7 +310,7 @@
         }
         
         .hero h2 {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             margin-bottom: 20px;
             font-weight: 700;
             line-height: 1.2;
@@ -226,7 +318,7 @@
         
         .hero p {
             margin-bottom: 30px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.9;
         }
         
@@ -252,7 +344,7 @@
             outline: none;
         }
         
-        /* Statistics Section */
+        /* Basic skeleton for statistics section */
         .statistics {
             padding: 80px 0;
             background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
@@ -273,801 +365,9 @@
             text-align: center;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .stat-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-            display: block;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: block;
-        }
-        
-        .stat-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        /* Features Section */
-        .features {
-            padding: 80px 0;
-            background-color: #fff;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-            color: #2c3e50;
-            font-size: 2.2rem;
-            font-weight: 700;
-            position: relative;
-        }
-        
-        .section-title:after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(45deg, #3498db, #2ecc71);
-            margin: 15px auto;
-            border-radius: 2px;
-        }
-        
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .feature-card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-top: 4px solid #3498db;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-        
-        .feature-card i {
-            font-size: 48px;
-            color: #3498db;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #3498db, #2ecc71);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .feature-card h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 1.4rem;
-        }
-        
-        .feature-card p {
-            line-height: 1.6;
-            color: #7f8c8d;
-        }
-        
-        /* App Screenshot Section */
-        .app-screenshot {
-            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
-            padding: 80px 0;
-            text-align: center;
-            color: white;
-        }
-        
-        .screenshot-container {
-            max-width: 320px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        .phone-mockup {
-            background: #1a2530;
-            padding: 50px 20px 50px 20px;
-            height: 580px;
-            border-radius: 40px;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .phone-content {
-            background: linear-gradient(135deg, #8e44ad, #3498db);
-            height: 100%;
-            border-radius: 30px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .screen-content {
-            padding: 25px;
-            color: #333;
-            height: 100%;
-            overflow-y: auto;
-            background-color: #f8f9fa;
-        }
-        
-        .complaint-item {
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-        }
-        
-        .complaint-item h4 {
-            color: #2c3e50;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-        
-        .complaint-item p {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            line-height: 1.5;
-            margin-bottom: 8px;
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status.process {
-            background-color: #ffeaa7;
-            color: #d35400;
-        }
-        
-        .status.done {
-            background-color: #55efc4;
-            color: #00b894;
-        }
-        
-        .floating-btn {
-            position: absolute;
-            bottom: 25px;
-            right: 25px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.5);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .floating-btn:hover {
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.6);
-        }
-        
-        /* Form Section */
-        .form-section {
-            padding: 80px 0;
-            background-color: #f8f9fa;
-        }
-        
-        .form-container {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            margin: 0 auto;
-            max-width: 800px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e8e8e8;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-        
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        /* Map Container */
-        .map-container {
-            height: 300px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #e8e8e8;
-        }
-        
-        #location-map {
-            height: 100%;
-            width: 100%;
-        }
-        
-        .map-instructions {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        /* File Upload Styles */
-        .file-upload-container {
-            margin-bottom: 25px;
-            display: block; /* Diubah dari display: none menjadi block */
-        }
-        
-        .file-upload-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .file-upload-wrapper {
-            position: relative;
-            margin-bottom: 15px;
-        }
-        
-        .file-upload-input {
-            width: 100%;
-            padding: 40px 20px;
-            border: 2px dashed #3498db;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .file-upload-input:hover, .file-upload-input:focus {
-            background-color: #e8f4fc;
-            border-color: #2980b9;
-        }
-        
-        .file-upload-button {
-            display: inline-block;
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-size: 16px;
-            border: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .file-upload-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
-        }
-        
-        .file-preview-container {
-            margin-top: 20px;
-        }
-        
-        .file-preview {
-            display: flex;
-            align-items: center;
-            background-color: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #e8e8e8;
-        }
-        
-        .file-preview-icon {
-            margin-right: 12px;
-            color: #3498db;
-            font-size: 20px;
-        }
-        
-        .file-preview-info {
-            flex-grow: 1;
-            overflow: hidden;
-        }
-        
-        .file-preview-name {
-            font-size: 14px;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 500;
-        }
-        
-        .file-preview-size {
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-        
-        .file-preview-remove {
-            color: #e74c3c;
-            cursor: pointer;
-            padding: 8px;
-            background: none;
-            border: none;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .file-preview-remove:hover {
-            transform: scale(1.2);
-        }
-
-        /* Image Preview Styles */
-        .image-preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .image-preview {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .image-preview-remove {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(231, 76, 60, 0.8);
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        /* Social Sharing Section */
-        .social-sharing {
-            padding: 60px 0;
-            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
-            text-align: center;
-            color: white;
-        }
-        
-        .social-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .social-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            color: white;
-            font-size: 24px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .social-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .facebook {
-            background-color: #3b5998;
-        }
-        
-        .twitter {
-            background-color: #1da1f2;
-        }
-        
-        .whatsapp {
-            background-color: #25d366;
-        }
-        
-        /* Search Section in Complaints Modal */
-        .search-container {
-            margin-bottom: 25px;
-            position: relative;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 2px solid #e8e8e8;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .search-input:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #7f8c8d;
-        }
-        
-        /* Filter Controls */
-        .filter-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-select, .filter-date {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        /* Download Section */
-        .download-section {
-            padding: 80px 0;
-            text-align: center;
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            color: white;
-        }
-        
-        .download-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .download-btn {
-            display: flex;
-            align-items: center;
-            background-color: white;
-            color: #2c3e50;
-            padding: 15px 25px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            min-height: 44px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .download-btn:hover, .download-btn:focus {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .download-btn i {
-            margin-right: 12px;
-            font-size: 28px;
-        }
-        
-        /* Footer */
-        footer {
-            background-color: #2c3e50;
-            color: white;
-            padding: 60px 0 30px;
-            text-align: center;
-        }
-        
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .footer-logo i {
-            font-size: 32px;
-            color: #3498db;
-        }
-        
-        .footer-logo h2 {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(45deg, #3498db, #2ecc71);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: #ecf0f1;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-        }
-        
-        .footer-links a:hover, .footer-links a:focus {
-            color: #3498db;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .copyright {
-            margin-top: 30px;
-            color: #bdc3c7;
-            font-size: 0.9rem;
-        }
-        
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #333;
-            color: white;
-            padding: 18px 24px;
-            border-radius: 8px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            transform: translateY(20px);
-            max-width: 350px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-        }
-        
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .toast.success {
-            background-color: #2ecc71;
-        }
-        
-        .toast.error {
-            background-color: #e74c3c;
-        }
-        
-        .toast.info {
-            background-color: #3498db;
-        }
-        
-        .toast-icon {
-            margin-right: 12px;
-            font-size: 20px;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Validation Styles */
-        .error-message {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .form-group.error input,
-        .form-group.error textarea,
-        .form-group.error select {
-            border-color: #e74c3c;
-        }
-        
-        .form-group.error .error-message {
-            display: block;
-        }
-        
-        /* Skeleton Loading */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-            min-height: 20px;
-        }
-        
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-        
-        .skeleton-card {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .skeleton-line {
-            height: 12px;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-        
-        .skeleton-line.short {
-            width: 60%;
-        }
-        
-        .skeleton-line.medium {
-            width: 80%;
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .hero h2 {
-                font-size: 2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
-            }
-            
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-container {
-                padding: 25px;
-            }
-            
-            .download-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .download-btn {
-                width: 100%;
-                max-width: 280px;
-                justify-content: center;
-            }
-            
-            .footer-links {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stat-card {
-                padding: 20px;
-            }
-            
-            .stat-number {
-                font-size: 2rem;
-            }
-            
-            .social-buttons {
-                gap: 10px;
-            }
-            
-            .social-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-            
-            .map-container {
-                height: 250px;
-            }
-            
-            .filter-controls {
-                flex-direction: column;
-            }
-            
-            .filter-select, .filter-date {
-                width: 100%;
-            }
-            
-            .image-preview {
-                width: 80px;
-                height: 80px;
-            }
-        }
-
-        /* Animations */
+        /* Keyframe animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1077,406 +377,26 @@
             animation: fadeIn 0.6s ease forwards;
         }
         
-        /* Additional UI Improvements */
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 10px;
-            background: linear-gradient(45deg, #3498db, #2ecc71);
-            color: white;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #3498db, #2ecc71);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: block;
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            font-size: 1rem;
-            color: #7f8c8d;
-        }
-        
-        .testimonial {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            margin: 20px 0;
-        }
-        
-        .testimonial-text {
-            font-style: italic;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            line-height: 1.6;
-        }
-        
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-        }
-        
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 15px;
-            background: linear-gradient(45deg, #3498db, #2ecc71);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .author-info h4 {
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-        
-        .author-info p {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        /* Skip link for accessibility */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #2c3e50;
-            color: white;
-            padding: 8px;
-            z-index: 10000;
-            transition: top 0.3s;
-        }
-        
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* Loading overlay for form submission */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        
-        .loading-overlay.active {
+        /* Ensure content is visible during loading */
+        .main-content {
             opacity: 1;
-            visibility: visible;
-            display: flex;
+            transition: opacity 0.3s ease;
         }
         
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #3498db;
-            animation: spin 1s ease-in-out infinite;
+        .main-content.loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
         
-        /* Complaints list modal */
-        .complaints-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        
-        .complaints-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .complaints-content {
-            background-color: white;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 30px;
-            position: relative;
-        }
-        
-        .complaints-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #7f8c8d;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.3s;
-        }
-        
-        .complaints-close:hover {
-            background-color: #f5f7fa;
-        }
-        
-        .complaints-header {
-            margin-bottom: 25px;
+        /* Noscript warning */
+        .noscript-warning {
+            background-color: #e74c3c;
+            color: white;
+            padding: 20px 0;
             text-align: center;
-            position: relative;
         }
         
-        .complaints-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .complaint-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .complaint-card.done {
-            border-left-color: #2ecc71;
-        }
-        
-        .complaint-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        
-        .complaint-category {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .complaint-date {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-        }
-        
-        .complaint-description {
-            margin-bottom: 15px;
-            line-height: 1.5;
-            color: #2c3e50;
-        }
-        
-        .complaint-images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .complaint-image {
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        
-        .complaint-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .complaint-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .complaint-id {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-        }
-        
-        .no-complaints {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-        }
-        
-        .no-complaints i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        /* Image Modal */
-        .image-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        
-        .image-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .image-modal-content {
-            max-width: 90%;
-            max-height: 90%;
-        }
-        
-        .image-modal-content img {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 8px;
-        }
-        
-        .image-modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Admin Panel */
-        .admin-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: #2c3e50;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        
-        .admin-panel {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            z-index: 1000;
-            width: 300px;
-            display: none;
-        }
-        
-        .admin-panel.active {
-            display: block;
-        }
-        
-        .admin-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        .admin-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .admin-input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .admin-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        .stats-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .stats-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-        
-        .stats-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
+        /* Firebase status */
         .firebase-status {
             position: fixed;
             top: 10px;
@@ -1497,6 +417,17 @@
             color: white;
         }
     </style>
+    
+    <!-- Non-critical CSS -->
+    <link rel="stylesheet" href="css/styles.css" media="print" onload="this.media='all'">
+    
+    <!-- Noscript fallback -->
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+        <link rel="stylesheet" href="css/styles.css">
+    </noscript>
 </head>
 <body>
     <!-- Skip link for accessibility -->
@@ -1507,83 +438,10 @@
         Firebase: Connecting...
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">
-        <i class="toast-icon"></i>
-        <span class="toast-message"></span>
-    </div>
-
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-spinner"></div>
-    </div>
-
-    <!-- Image Modal -->
-    <div class="image-modal" id="image-modal">
-        <div class="image-modal-content" id="image-modal-content">
-            <span class="image-modal-close" id="image-modal-close">&times;</span>
-        </div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div class="admin-toggle" id="admin-toggle">
-        <i class="fas fa-cog"></i>
-    </div>
-    
-    <div class="admin-panel" id="admin-panel">
-        <h3 class="admin-title">Panel Admin Statistik</h3>
-        <div class="admin-form">
-            <input type="number" id="total-input" class="admin-input" placeholder="Total Pengaduan">
-            <input type="number" id="processed-input" class="admin-input" placeholder="Sedang Diproses">
-            <input type="number" id="resolved-input" class="admin-input" placeholder="Terselesaikan">
-            <button class="admin-btn" id="update-stats-btn">Update Statistik</button>
-        </div>
-        <div class="stats-controls">
-            <button class="stats-btn" id="auto-increase-btn">Auto Increase</button>
-            <button class="stats-btn" id="reset-stats-btn">Reset</button>
-        </div>
-    </div>
-
-    <!-- Complaints Modal -->
-    <div class="complaints-modal" id="complaints-modal">
-        <div class="complaints-content">
-            <button class="complaints-close" id="complaints-close" aria-label="Tutup">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="complaints-header">
-                <h2>Daftar Pengaduan Anda</h2>
-                <p>Berikut adalah riwayat pengaduan yang telah Anda laporkan</p>
-            </div>
-            
-            <!-- Search Box -->
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="search-complaints" class="search-input" placeholder="Cari pengaduan...">
-            </div>
-            
-            <!-- Filter Controls -->
-            <div class="filter-controls">
-                <select id="filter-category" class="filter-select">
-                    <option value="">Semua Kategori</option>
-                    <option value="infrastruktur">Infrastruktur</option>
-                    <option value="kebersihan">Kebersihan</option>
-                    <option value="keamanan">Keamanan</option>
-                    <option value="lainnya">Lainnya</option>
-                </select>
-                
-                <select id="filter-status" class="filter-select">
-                    <option value="">Semua Status</option>
-                    <option value="process">Diproses</option>
-                    <option value="done">Selesai</option>
-                </select>
-                
-                <input type="date" id="filter-date" class="filter-date">
-            </div>
-            
-            <div class="complaints-list" id="complaints-list">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
+        <p class="loading-text">Memuat aplikasi...</p>
     </div>
 
     <!-- Navigation Menu -->
@@ -1629,13 +487,13 @@
         </div>
     </header>
 
-    <main id="main-content">
+    <main id="main-content" class="main-content">
         <section class="hero">
             <div class="container">
                 <div class="hero-content">
                     <h2>Laporkan masalah Anda dengan mudah dan cepat</h2>
                     <p>Aplikasi pengaduan masyarakat real-time yang memudahkan Anda melaporkan masalah di lingkungan sekitar dan melacak status pengaduannya.</p>
-                    <a href="#download" class="btn">Download Sekarang</a>
+                    <a href="#form-section" class="btn">Buat Pengaduan</a>
                 </div>
             </div>
         </section>
@@ -1664,6 +522,7 @@
             </div>
         </section>
 
+        <!-- Features Section -->
         <section class="features">
             <div class="container">
                 <h2 class="section-title">Fitur Unggulan</h2>
@@ -1702,55 +561,28 @@
             </div>
         </section>
 
-        <section class="app-screenshot">
-            <div class="container">
-                <h2 class="section-title">Tampilan Aplikasi</h2>
-                <div class="screenshot-container">
-                    <div class="phone-mockup">
-                        <div class="phone-content">
-                            <div class="screen-content">
-                                <h3 style="text-align: center; margin-bottom: 20px; color: #2c3e50;">Daftar Pengaduan</h3>
-                                
-                                <div id="complaints-container">
-                                    <!-- Will be populated by JavaScript -->
-                                </div>
-                                
-                                <div class="floating-btn" id="new-complaint-btn" aria-label="Buat pengaduan baru">
-                                    <i class="fas fa-plus"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+        <!-- Form Section -->
         <section id="form-section" class="form-section">
             <div class="container">
                 <h2 class="section-title">Buat Pengaduan Baru</h2>
                 <div class="form-container">
-                    <form action="https://formspree.io/f/xdklpyyj" method="POST" id="complaint-form" enctype="multipart/form-data">
-                        <input type="hidden" name="_subject" value="Pengaduan Baru dari Website">
-                        <input type="hidden" name="_replyto" value="aduanmasyarakat5@gmail.com">
-                        <input type="hidden" name="_format" value="plain">
-                        <input type="text" name="_gotcha" style="display:none">
-                        
+                    <form id="complaint-form">
                         <div class="form-group">
                             <label for="name">Nama Lengkap *</label>
-                            <input type="text" id="name" name="name" required aria-required="true">
-                            <div class="error-message" id="name-error">Nama lengkap harus diisi</div>
+                            <input type="text" id="name" name="name" required aria-required="true" minlength="3" maxlength="50">
+                            <div class="error-message" id="name-error">Nama lengkap harus diisi (3-50 karakter)</div>
                         </div>
                         
                         <div class="form-group">
                             <label for="email">Email *</label>
-                            <input type="email" id="email" name="email" required aria-required="true">
+                            <input type="email" id="email" name="email" required aria-required="true" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
                             <div class="error-message" id="email-error">Format email tidak valid</div>
                         </div>
                         
                         <div class="form-group">
                             <label for="phone">Nomor Telepon</label>
-                            <input type="tel" id="phone" name="phone">
-                            <div class="error-message" id="phone-error">Format nomor telepon tidak valid</div>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{9,15}">
+                            <div class="error-message" id="phone-error">Format nomor telepon tidak valid (9-15 digit)</div>
                         </div>
                         
                         <!-- Map Integration -->
@@ -1778,8 +610,9 @@
                         
                         <div class="form-group">
                             <label for="description">Deskripsi Pengaduan *</label>
-                            <textarea id="description" name="description" required aria-required="true"></textarea>
-                            <div class="error-message" id="description-error">Deskripsi harus diisi</div>
+                            <textarea id="description" name="description" required aria-required="true" minlength="10" maxlength="500" placeholder="Jelaskan masalah secara detail (min. 10 karakter, maks. 500 karakter)"></textarea>
+                            <div class="char-counter"><span id="char-count">0</span>/500 karakter</div>
+                            <div class="error-message" id="description-error">Deskripsi harus diisi (10-500 karakter)</div>
                         </div>
                         
                         <!-- File Upload Section -->
@@ -1798,6 +631,13 @@
                             </div>
                         </div>
                         
+                        <!-- Privacy Consent -->
+                        <div class="form-group consent-group">
+                            <input type="checkbox" id="privacy-consent" name="privacy-consent" required>
+                            <label for="privacy-consent">Saya setuju dengan <a href="privacy.html" target="_blank">kebijakan privasi</a> dan penyimpanan data pengaduan saya *</label>
+                            <div class="error-message" id="consent-error">Anda harus menyetujui kebijakan privasi</div>
+                        </div>
+                        
                         <button type="submit" class="btn" id="submit-button" style="width: 100%;">
                             <span id="submit-text">Kirim Pengaduan</span>
                             <span id="submit-loading" style="display: none;"><span class="spinner"></span> Mengirim...</span>
@@ -1807,35 +647,17 @@
             </div>
         </section>
 
-        <!-- Social Sharing Section -->
-        <section class="social-sharing">
-            <div class="container">
-                <h2 class="section-title">Bagikan Aplikasi Ini</h2>
-                <p>Bantu sebarkan informasi tentang AduanMasyarakat kepada masyarakat lainnya</p>
-                <div class="social-buttons">
-                    <a href="#" class="social-btn facebook" id="share-facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="social-btn twitter" id="share-twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-btn whatsapp" id="share-whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                </div>
-            </div>
-        </section>
-
+        <!-- Download Section -->
         <section id="download" class="download-section">
             <div class="container">
-                <h2 class="section-title">Download Aplikasi Sekarang</h2>
-                <p>Unduh aplikasi AduanMasyarakat secara gratis di platform Android</p>
+                <h2 class="section-title">Download Aplikasi</h2>
+                <p>Unduh aplikasi AduanMasyarakat untuk pengalaman yang lebih baik</p>
                 <div class="download-buttons">
-                    <a href="download.html" class="download-btn">
+                    <a href="#" class="download-btn">
                         <i class="fab fa-google-play"></i>
                         <span>Google Play Store</span>
                     </a>
-                    <a href="download.html" class="download-btn">
+                    <a href="#" class="download-btn">
                         <i class="fas fa-download"></i>
                         <span>Download APK</span>
                     </a>
@@ -1851,1202 +673,89 @@
                     <i class="fas fa-house-damage" aria-hidden="true"></i>
                     <h2>AduanMasyarakat</h2>
                 </div>
-                <p>Aplikasi layanan pengaduan masyarakat terpercaya sejak 2025</p>
-               <div class="footer-links">
-                <a href="tentang-kami.html">Tentang Kami</a>
-                <a href="privacy.html">Kebijakan Privasi</a>
-                <a href="terms.html">Syarat & Ketentuan</a>
-                <a href="help.html">Bantuan</a>
-                <a href="help.html#kontak">Kontak</a>
-            </div>
+                <p>Layanan pengaduan masyarakat terpercaya</p>
+                <div class="footer-links">
+                    <a href="privacy.html">Kebijakan Privasi</a>
+                    <a href="terms.html">Syarat & Ketentuan</a>
+                    <a href="help.html">Bantuan</a>
+                    <a href="contact.html">Kontak</a>
+                </div>
                 <p class="copyright">© 2025 AduanMasyarakat. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- External Libraries (Deferred) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" defer></script>
+    
+    <!-- App Modules (Deferred) -->
+    <script type="module" src="js/app.js" defer></script>
+
+    <!-- NoScript Fallback -->
+    <noscript>
+        <div class="noscript-warning">
+            <div class="container">
+                <h3>JavaScript Diperlukan</h3>
+                <p>Website ini memerlukan JavaScript untuk berfungsi dengan baik. Silakan aktifkan JavaScript di browser Anda.</p>
+            </div>
+        </div>
+    </noscript>
+
+    <!-- Minimal inline script untuk functionality dasar -->
     <script>
-        // Konfigurasi Firebase yang benar
-        const firebaseConfig = {
-            apiKey: "AIzaSyDXxHBE7lk8hsOfvsMsFT8IgGS4TEpjOBY",
-            authDomain: "parlemen-rakyat.firebaseapp.com",
-            projectId: "parlemen-rakyat",
-            storageBucket: "parlemen-rakyat.firebasestorage.app",
-            messagingSenderId: "378674322699",
-            appId: "1:378674322699:web:e2acf19ed2564edabf160e",
-            measurementId: "G-MEASUREMENT_ID"
-        };
-        
-        // Inisialisasi Firebase
-        let firebaseInitialized = false;
-        let db = null;
-        let storage = null;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            storage = firebase.storage();
-            firebaseInitialized = true;
-            console.log("Firebase berhasil diinisialisasi");
-            
-            // Update status koneksi
-            updateFirebaseStatus('connected');
-            
-        } catch (error) {
-            console.error("Error inisialisasi Firebase:", error);
-            firebaseInitialized = false;
-            updateFirebaseStatus('disconnected');
-            
-            // Fallback ke localStorage
-            initLocalStorageFallback();
-        }
-        
-        function updateFirebaseStatus(status) {
-            const firebaseStatus = document.getElementById('firebase-status');
-            
-            if (status === 'connected') {
-                firebaseStatus.textContent = "Firebase: Connected";
-                firebaseStatus.className = 'firebase-status firebase-connected';
-                firebaseStatus.style.display = 'block';
-                
-                // Sembunyikan status setelah 3 detik
-                setTimeout(() => {
-                    firebaseStatus.style.display = 'none';
-                }, 3000);
-            } else {
-                firebaseStatus.textContent = "Firebase: Disconnected - Using offline mode";
-                firebaseStatus.className = 'firebase-status firebase-disconnected';
-                firebaseStatus.style.display = 'block';
-            }
-        }
-        
-        function initLocalStorageFallback() {
-            console.log("Menggunakan fallback localStorage");
-            
-            // Pastikan data statistik ada di localStorage
-            if (!localStorage.getItem('complaintStats')) {
-                const defaultStats = {
-                    total: 1256,
-                    processed: 843,
-                    resolved: 672,
-                    lastUpdated: new Date().toISOString()
-                };
-                localStorage.setItem('complaintStats', JSON.stringify(defaultStats));
-            }
-            
-            // Update statistik dari localStorage
-            updateComplaintStatistics();
-        }
-        
-        // Inisialisasi Peta
-        let map = null;
-        let marker = null;
-        
-        function initMap() {
-            try {
-                // Default location (contoh: Jakarta)
-                const defaultLocation = [-6.2088, 106.8456];
-                
-                // Inisialisasi peta
-                const mapContainer = document.getElementById('location-map');
-                if (!mapContainer) {
-                    console.error("Map container not found!");
-                    return;
-                }
-                
-                map = L.map('location-map').setView(defaultLocation, 13);
-                
-                // Tambahkan tile layer (OpenStreetMap)
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
-                
-                // Tambahkan marker
-                marker = L.marker(defaultLocation, {
-                    draggable: true
-                }).addTo(map);
-                
-                // Event ketika marker dipindahkan
-                marker.on('dragend', function() {
-                    updateLocationInput();
-                });
-                
-                // Event ketika peta diklik
-                map.on('click', function(e) {
-                    marker.setLatLng(e.latlng);
-                    updateLocationInput();
-                });
-                
-                // Coba dapatkan lokasi pengguna
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            const userLocation = [
-                                position.coords.latitude,
-                                position.coords.longitude
-                            ];
-                            
-                            map.setView(userLocation, 15);
-                            marker.setLatLng(userLocation);
-                            updateLocationInput();
-                        },
-                        function(error) {
-                            console.error("Error getting location:", error);
-                            // Tetap gunakan lokasi default
-                            updateLocationInput();
-                        }
-                    );
-                } else {
-                    console.error("Geolocation is not supported by this browser.");
-                    updateLocationInput();
-                }
-            } catch (error) {
-                console.error("Error initializing map:", error);
-            }
-        }
-        
-        function updateLocationInput() {
-            const latLng = marker.getLatLng();
-            document.getElementById('location').value = `${latLng.lat.toFixed(6)}, ${latLng.lng.toFixed(6)}`;
-        }
-        
-        // Fungsi untuk validasi form
-        function validateForm() {
-            let isValid = true;
-            
-            // Validasi nama
-            const name = document.getElementById('name').value.trim();
-            if (!name) {
-                document.getElementById('name').parentElement.classList.add('error');
-                isValid = false;
-            } else {
-                document.getElementById('name').parentElement.classList.remove('error');
-            }
-            
-            // Validasi email
-            const email = document.getElementById('email').value.trim();
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email || !emailRegex.test(email)) {
-                document.getElementById('email').parentElement.classList.add('error');
-                isValid = false;
-            } else {
-                document.getElementById('email').parentElement.classList.remove('error');
-            }
-            
-            // Validasi telepon (opsional)
-            const phone = document.getElementById('phone').value.trim();
-            if (phone) {
-                const phoneRegex = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/;
-                if (!phoneRegex.test(phone)) {
-                    document.getElementById('phone').parentElement.classList.add('error');
-                    isValid = false;
-                } else {
-                    document.getElementById('phone').parentElement.classList.remove('error');
-                }
-            }
-            
-            // Validasi lokasi
-            const location = document.getElementById('location').value.trim();
-            if (!location) {
-                document.getElementById('location').parentElement.classList.add('error');
-                isValid = false;
-            } else {
-                document.getElementById('location').parentElement.classList.remove('error');
-            }
-            
-            // Validasi kategori
-            const category = document.getElementById('category').value;
-            if (!category) {
-                document.getElementById('category').parentElement.classList.add('error');
-                isValid = false;
-            } else {
-                document.getElementById('category').parentElement.classList.remove('error');
-            }
-            
-            // Validasi deskripsi
-            const description = document.getElementById('description').value.trim();
-            if (!description) {
-                document.getElementById('description').parentElement.classList.add('error');
-                isValid = false;
-            } else {
-                document.getElementById('description').parentElement.classList.remove('error');
-            }
-            
-            return isValid;
-        }
-        
-        // Fungsi untuk update statistik
-        function updateComplaintStatistics() {
-            // Coba gunakan Firebase terlebih dahulu
-            if (firebaseInitialized) {
-                db.collection("stats").doc("complaintStats").get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText) || 0, data.total, 1000);
-                        animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText) || 0, data.processed, 1000);
-                        animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText) || 0, data.resolved, 1000);
-                    } else {
-                        // Buat dokumen default jika tidak ada
-                        db.collection("stats").doc("complaintStats").set({
-                            total: 1256,
-                            processed: 843,
-                            resolved: 672,
-                            lastUpdated: new Date()
-                        })
-                        .then(() => {
-                            console.log("Dokumen statistik default dibuat");
-                            updateComplaintStatistics(); // Panggul ulang setelah membuat dokumen
-                        })
-                        .catch((error) => {
-                            console.error("Error membuat dokumen default:", error);
-                            useLocalStorageStats();
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error getting document:", error);
-                    useLocalStorageStats();
-                });
-            } else {
-                // Fallback ke localStorage jika Firebase tidak tersedia
-                useLocalStorageStats();
-            }
-        }
-        
-        // Fungsi untuk menggunakan statistik dari localStorage
-        function useLocalStorageStats() {
-            const stats = JSON.parse(localStorage.getItem('complaintStats')) || {
-                total: 1256,
-                processed: 843,
-                resolved: 672
-            };
-            
-            animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText) || 0, stats.total, 1000);
-            animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText) || 0, stats.processed, 1000);
-            animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText) || 0, stats.resolved, 1000);
-        }
-        
-        // Fungsi untuk menyimpan statistik ke Firebase
-        function saveStatsToFirebase(total, processed, resolved) {
-            if (!firebaseInitialized) return false;
-            
-            db.collection("stats").doc("complaintStats").set({
-                total: total,
-                processed: processed,
-                resolved: resolved,
-                lastUpdated: new Date()
-            })
-            .then(() => {
-                console.log("Statistik berhasil disimpan ke Firebase");
-                showToast("Statistik berhasil diperbarui!", "success");
-                return true;
-            })
-            .catch((error) => {
-                console.error("Error menyimpan statistik: ", error);
-                showToast("Gagal menyimpan ke Firebase", "error");
-                return false;
-            });
-        }
-        
-        // Fungsi untuk menyimpan statistik ke localStorage
-        function saveStatsToLocalStorage(total, processed, resolved) {
-            const stats = {
-                total: total,
-                processed: processed,
-                resolved: resolved,
-                lastUpdated: new Date().toISOString()
-            };
-            
-            localStorage.setItem('complaintStats', JSON.stringify(stats));
-            showToast("Statistik berhasil diperbarui!", "success");
-            return true;
-        }
-        
-        // Fungsi animasi angka
-        function animateValue(id, start, end, duration) {
-            const element = document.getElementById(id);
-            if (!element) return;
-            
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const value = Math.floor(progress * (end - start) + start);
-                element.innerHTML = value.toLocaleString('id-ID');
-                
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-        
-        // Fungsi untuk menampilkan toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastIcon = toast.querySelector('.toast-icon');
-            const toastMessage = toast.querySelector('.toast-message');
-            
-            // Set icon based on type
-            if (type === 'success') {
-                toastIcon.className = 'toast-icon fas fa-check-circle';
-            } else if (type === 'error') {
-                toastIcon.className = 'toast-icon fas fa-exclamation-circle';
-            } else {
-                toastIcon.className = 'toast-icon fas fa-info-circle';
-            }
-            
-            toastMessage.textContent = message;
-            toast.className = `toast ${type} show`;
-            
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
-        }
-        
-        // Fungsi untuk mencari dan memfilter pengaduan
-        function filterComplaints() {
-            const searchTerm = document.getElementById('search-complaints').value.toLowerCase();
-            const categoryFilter = document.getElementById('filter-category').value;
-            const statusFilter = document.getElementById('filter-status').value;
-            const dateFilter = document.getElementById('filter-date').value;
-            
-            const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
-            const complaintsList = document.getElementById('complaints-list');
-            
-            if (complaints.length === 0) {
-                complaintsList.innerHTML = `
-                    <div class="no-complaints">
-                        <i class="fas fa-inbox"></i>
-                        <h3>Belum ada pengaduan</h3>
-                        <p>Anda belum membuat pengaduan apapun. Klik tombol di bawah untuk membuat pengaduan pertama Anda.</p>
-                        <a href="#form-section" class="btn" style="margin-top: 20px;">Buat Pengaduan</a>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Filter logic
-            const filteredComplaints = complaints.filter(complaint => {
-                const matchesSearch = complaint.description.toLowerCase().includes(searchTerm) ||
-                                     complaint.category.toLowerCase().includes(searchTerm) ||
-                                     complaint.location.toLowerCase().includes(searchTerm);
-                
-                const matchesCategory = !categoryFilter || complaint.category === categoryFilter;
-                const matchesStatus = !statusFilter || complaint.status === statusFilter;
-                
-                let matchesDate = true;
-                if (dateFilter) {
-                    const complaintDate = new Date(complaint.timestamp).toISOString().split('T')[0];
-                    matchesDate = complaintDate === dateFilter;
-                }
-                
-                return matchesSearch && matchesCategory && matchesStatus && matchesDate;
-            });
-            
-            renderComplaintsList(filteredComplaints);
-        }
-        
-        // Fungsi untuk merender daftar pengaduan
-        function renderComplaintsList(complaints) {
-            const complaintsList = document.getElementById('complaints-list');
-            
-            if (complaints.length === 0) {
-                complaintsList.innerHTML = `
-                    <div class="no-complaints">
-                        <i class="fas fa-search"></i>
-                        <h3>Tidak ada hasil pencarian</h3>
-                        <p>Tidak ada pengaduan yang sesuai dengan pencarian Anda.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            complaintsList.innerHTML = '';
-            complaints.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            complaints.forEach(complaint => {
-                const date = new Date(complaint.timestamp).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                const complaintCard = document.createElement('div');
-                complaintCard.className = `complaint-card ${complaint.status === 'done' ? 'done' : ''}`;
-                
-                // Generate HTML untuk gambar jika ada
-                let imagesHTML = '';
-                if (complaint.images && complaint.images.length > 0) {
-                    imagesHTML = '<div class="complaint-images">';
-                    complaint.images.forEach(img => {
-                        imagesHTML += `
-                            <div class="complaint-image" onclick="openImageModal('${img.url}')">
-                                <img src="${img.url}" alt="Bukti pengaduan">
-                            </div>
-                        `;
-                    });
-                    imagesHTML += '</div>';
-                }
-                
-                complaintCard.innerHTML = `
-                    <div class="complaint-header">
-                        <span class="complaint-category">${escapeHtml(getCategoryLabel(complaint.category))}</span>
-                        <span class="complaint-date">${date}</span>
-                    </div>
-                    <div class="complaint-description">
-                        ${escapeHtml(complaint.description)}
-                    </div>
-                    ${imagesHTML}
-                    <div class="complaint-footer">
-                        <span class="complaint-id">ID: ${complaint.id}</span>
-                        <span class="status ${complaint.status === 'done' ? 'done' : 'process'}">
-                            ${complaint.status === 'done' ? 'Selesai' : 'Diproses'}
-                        </span>
-                    </div>
-                `;
-                
-                complaintsList.appendChild(complaintCard);
-            });
-        }
-        
-        // Fungsi untuk membuka modal gambar
-        function openImageModal(imageUrl) {
-            const imageModal = document.getElementById('image-modal');
-            const imageModalContent = document.getElementById('image-modal-content');
-            
-            // Hapus konten sebelumnya
-            while (imageModalContent.firstChild) {
-                imageModalContent.removeChild(imageModalContent.firstChild);
-            }
-            
-            // Tambahkan gambar baru
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = "Bukti pengaduan";
-            
-            // Tambahkan tombol close
-            const closeBtn = document.createElement('span');
-            closeBtn.className = 'image-modal-close';
-            closeBtn.innerHTML = '&times;';
-            closeBtn.onclick = closeImageModal;
-            
-            imageModalContent.appendChild(img);
-            imageModalContent.appendChild(closeBtn);
-            
-            // Tampilkan modal
-            imageModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Fungsi untuk menutup modal gambar
-        function closeImageModal() {
-            const imageModal = document.getElementById('image-modal');
-            imageModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
-        function getCategoryLabel(categoryValue) {
-            const categories = {
-                'infrastruktur': 'Infrastruktur',
-                'kebersihan': 'Kebersihan',
-                'keamanan': 'Keamanan',
-                'lainnya': 'Lainnya'
-            };
-            
-            return categories[categoryValue] || 'Lainnya';
-        }
-        
-        // Fungsi untuk berbagi melalui media sosial
-        function initSocialSharing() {
-            const currentUrl = encodeURIComponent(window.location.href);
-            const title = encodeURIComponent('AduanMasyarakat - Layanan Pengaduan Real-Time');
-            
-            document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`;
-            document.getElementById('share-twitter').href = `https://twitter.com/intent/tweet?text=${title}&url=${currentUrl}`;
-            document.getElementById('share-whatsapp').href = `https://wa.me/?text=${title}%20${currentUrl}`;
-        }
-        
-        // Fungsi untuk menampilkan skeleton loading
-        function showSkeletonLoading(container, count = 3) {
-            let skeletonHTML = '';
-            for (let i = 0; i < count; i++) {
-                skeletonHTML += `
-                    <div class="skeleton-card">
-                        <div class="skeleton-line short"></div>
-                        <div class="skeleton-line medium"></div>
-                        <div class="skeleton-line" style="width: 40%"></div>
-                    </div>
-                `;
-            }
-            container.innerHTML = skeletonHTML;
-        }
-        
-        // Fungsi untuk escape HTML
-        function escapeHtml(unsafe) {
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-        
-        // Fungsi untuk menyimpan data pengaduan ke localStorage
-        function saveComplaintToLocal(complaintData) {
-            // Ambil data yang sudah ada dari localStorage
-            const existingComplaints = JSON.parse(localStorage.getItem('complaints')) || [];
-            
-            // Tambahkan ID dan timestamp ke data pengaduan
-            complaintData.id = 'ADU-' + Date.now();
-            complaintData.timestamp = new Date().toISOString();
-            complaintData.status = 'process'; // Status default
-            
-            // Tambahkan pengaduan baru ke array
-            existingComplaints.push(complaintData);
-            
-            // Simpan kembali ke localStorage
-            localStorage.setItem('complaints', JSON.stringify(existingComplaints));
-            
-            return complaintData;
-        }
-        
-        // Fungsi untuk menghitung dan menampilkan statistik pengaduan
-        function updateComplaintStats() {
-            const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
-            
-            // Hitung total pengaduan
-            const totalComplaints = complaints.length;
-            
-            // Hitung pengaduan yang sedang diproses
-            const processedComplaints = complaints.filter(complaint => complaint.status === 'process').length;
-            
-            // Hitung pengaduan yang selesai
-            const resolvedComplaints = complaints.filter(complaint => complaint.status === 'done').length;
-            
-            // Update elemen HTML dengan animasi
-            animateValue('total-complaints', 0, totalComplaints, 1000);
-            animateValue('processed-complaints', 0, processedComplaints, 1000);
-            animateValue('resolved-complaints', 0, resolvedComplaints, 1000);
-        }
-
-        // Fungsi untuk menampilkan daftar pengaduan
-        function displayComplaints() {
-            const complaintsContainer = document.getElementById('complaints-container');
-            const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
-            
-            if (complaints.length === 0) {
-                complaintsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
-                        <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 15px;"></i>
-                        <p>Belum ada pengaduan</p>
-                        <p>Jadilah yang pertama melaporkan</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Urutkan berdasarkan timestamp (terbaru pertama)
-            complaints.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            // Tampilkan maksimal 3 pengaduan terbaru
-            const recentComplaints = complaints.slice(0, 3);
-            
-            let complaintsHTML = '';
-            recentComplaints.forEach(complaint => {
-                const date = new Date(complaint.timestamp).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-                
-                const statusClass = complaint.status === 'done' ? 'done' : 'process';
-                const statusText = complaint.status === 'done' ? 'Selesai' : 'Diproses';
-                
-                complaintsHTML += `
-                    <div class="complaint-item">
-                        <h4>${escapeHtml(getCategoryLabel(complaint.category))}</h4>
-                        <p>${escapeHtml(complaint.description.substring(0, 60))}${complaint.description.length > 60 ? '...' : ''}</p>
-                        <p><small>${date}</small></p>
-                        <span class="status ${statusClass}">${statusText}</span>
-                    </div>
-                `;
-            });
-            
-            complaintsContainer.innerHTML = complaintsHTML;
-        }
-        
-        // Fungsi untuk mengelola upload file
-        function initFileUpload() {
-            const fileInput = document.getElementById('file-input');
-            const fileDropArea = document.getElementById('file-drop-area');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const MAX_FILES = 5;
-            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-            
-            let uploadedFiles = [];
-            
-            // Event listener untuk area drop
-            fileDropArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            fileDropArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                fileDropArea.style.borderColor = '#2980b9';
-                fileDropArea.style.backgroundColor = '#e8f4fc';
-            });
-            
-            fileDropArea.addEventListener('dragleave', () => {
-                fileDropArea.style.borderColor = '#3498db';
-                fileDropArea.style.backgroundColor = '#f8f9fa';
-            });
-            
-            fileDropArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                fileDropArea.style.borderColor = '#3498db';
-                fileDropArea.style.backgroundColor = '#f8f9fa';
-                
-                if (e.dataTransfer.files.length > 0) {
-                    handleFiles(e.dataTransfer.files);
-                }
-            });
-            
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files.length > 0) {
-                    handleFiles(fileInput.files);
-                }
-            });
-            
-            function handleFiles(files) {
-                for (let i = 0; i < files.length; i++) {
-                    if (uploadedFiles.length >= MAX_FILES) {
-                        showToast(`Maksimal ${MAX_FILES} file yang diizinkan`, 'error');
-                        break;
-                    }
-                    
-                    const file = files[i];
-                    
-                    // Validasi tipe file
-                    const validFileTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-                    if (!validFileTypes.includes(file.type)) {
-                        showToast('Hanya file JPG, PNG, dan PDF yang diizinkan', 'error');
-                        continue;
-                    }
-                    
-                    // Validasi ukuran file
-                    if (file.size > MAX_FILE_SIZE) {
-                        showToast('Ukuran file maksimal 5MB', 'error');
-                        continue;
-                    }
-                    
-                    // Tambahkan file ke daftar
-                    uploadedFiles.push(file);
-                    
-                    // Tampilkan preview
-                    displayFilePreview(file);
-                }
-                
-                // Update input file
-                updateFileInput();
-            }
-            
-            function displayFilePreview(file) {
-                const previewDiv = document.createElement('div');
-                previewDiv.className = 'image-preview';
-                
-                if (file.type.includes('image')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.alt = file.name;
-                        previewDiv.appendChild(img);
-                        
-                        const removeBtn = document.createElement('div');
-                        removeBtn.className = 'image-preview-remove';
-                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                        removeBtn.onclick = () => removeFile(file);
-                        previewDiv.appendChild(removeBtn);
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    // Untuk file PDF
-                    previewDiv.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                            <i class="fas fa-file-pdf" style="font-size: 30px; color: #e74c3c;"></i>
-                            <p style="font-size: 10px; margin-top: 5px; text-align: center;">${file.name}</p>
-                        </div>
-                        <div class="image-preview-remove" onclick="removeFileFromPreview(this.parentNode, '${file.name}')">
-                            <i class="fas fa-times"></i>
-                        </div>
-                    `;
-                }
-                
-                imagePreviewContainer.appendChild(previewDiv);
-            }
-            
-            function removeFile(fileToRemove) {
-                uploadedFiles = uploadedFiles.filter(file => file !== fileToRemove);
-                updateFileInput();
-                updatePreviews();
-            }
-            
-            function removeFileFromPreview(previewElement, fileName) {
-                uploadedFiles = uploadedFiles.filter(file => file.name !== fileName);
-                previewElement.remove();
-                updateFileInput();
-            }
-            
-            function updatePreviews() {
-                imagePreviewContainer.innerHTML = '';
-                uploadedFiles.forEach(file => {
-                    displayFilePreview(file);
-                });
-            }
-            
-            function updateFileInput() {
-                // Buat DataTransfer object baru
-                const dataTransfer = new DataTransfer();
-                
-                // Tambahkan semua file yang diupload
-                uploadedFiles.forEach(file => {
-                    dataTransfer.items.add(file);
-                });
-                
-                // Update file input
-                fileInput.files = dataTransfer.files;
-                
-                // Update teks di area drop
-                if (uploadedFiles.length > 0) {
-                    fileDropArea.querySelector('p').textContent = `${uploadedFiles.length} file dipilih. Klik untuk menambah atau ubah`;
-                } else {
-                    fileDropArea.querySelector('p').textContent = 'Seret dan lepas file di sini atau klik untuk memilih';
-                }
-            }
-            
-            // Fungsi global untuk menghapus file dari preview
-            window.removeFileFromPreview = removeFileFromPreview;
-            
-            // Kembalikan array uploadedFiles untuk digunakan di form submission
-            return {
-                getUploadedFiles: () => uploadedFiles,
-                clearFiles: () => {
-                    uploadedFiles = [];
-                    updateFileInput();
-                    updatePreviews();
-                }
-            };
-        }
-        
-        // Fungsi untuk mengupload file ke Firebase Storage
-        async function uploadFilesToFirebase(files, complaintId) {
-            if (!firebaseInitialized || !files || files.length === 0) {
-                return [];
-            }
-            
-            const uploadPromises = [];
-            const uploadedUrls = [];
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileExtension = file.name.split('.').pop();
-                const fileName = `${complaintId}_${Date.now()}_${i}.${fileExtension}`;
-                const storageRef = storage.ref(`complaints/${complaintId}/${fileName}`);
-                
-                uploadPromises.push(
-                    storageRef.put(file).then(snapshot => {
-                        return snapshot.ref.getDownloadURL().then(url => {
-                            uploadedUrls.push({
-                                name: file.name,
-                                url: url,
-                                type: file.type
-                            });
-                            return url;
-                        });
-                    }).catch(error => {
-                        console.error("Error uploading file:", error);
-                        throw error;
-                    })
-                );
-            }
-            
-            try {
-                await Promise.all(uploadPromises);
-                return uploadedUrls;
-            } catch (error) {
-                console.error("Error uploading files:", error);
-                throw error;
-            }
-        }
-        
-        // DOM Elements
-        const navToggle = document.getElementById('nav-toggle');
-        const navMenu = document.getElementById('nav-menu');
-        const navClose = document.getElementById('nav-close');
-        const navOverlay = document.getElementById('nav-overlay');
-        const viewComplaintsLink = document.getElementById('view-complaints-link');
-        const complaintsModal = document.getElementById('complaints-modal');
-        const complaintsClose = document.getElementById('complaints-close');
-        const complaintsList = document.getElementById('complaints-list');
-        const newComplaintBtn = document.getElementById('new-complaint-btn');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const imageModalClose = document.getElementById('image-modal-close');
-
-        // Navigation Menu
-        function openNavMenu() {
-            navMenu.classList.add('active');
-            navOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            document.getElementById('nav-toggle').setAttribute('aria-expanded', 'true');
-        }
-
-        function closeNavMenu() {
-            navMenu.classList.remove('active');
-            navOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-            document.getElementById('nav-toggle').setAttribute('aria-expanded', 'false');
-        }
-
-        navToggle.addEventListener('click', openNavMenu);
-        navClose.addEventListener('click', closeNavMenu);
-        navOverlay.addEventListener('click', closeNavMenu);
-
-        // View Complaints
-        viewComplaintsLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeNavMenu();
-            showComplaintsModal();
-        });
-
-        function showComplaintsModal() {
-            const complaintsList = document.getElementById('complaints-list');
-            showSkeletonLoading(complaintsList);
-            
-            // Simulasi loading
-            setTimeout(() => {
-                complaintsModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                filterComplaints();
-            }, 800);
-        }
-
-        complaintsClose.addEventListener('click', function() {
-            complaintsModal.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        complaintsModal.addEventListener('click', function(e) {
-            if (e.target === complaintsModal) {
-                complaintsModal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-
-        // Image Modal
-        imageModalClose.addEventListener('click', closeImageModal);
-        
-        document.getElementById('image-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeImageModal();
-            }
-        });
-
-        // New complaint button in phone mockup
-        newComplaintBtn.addEventListener('click', function() {
-            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
-        });
-
-        // Menu navigasi mobile
-        document.querySelector('.nav-toggle').addEventListener('click', function() {
-            openNavMenu();
-        });
-
-        // Animasi sederhana untuk tombol
-        const buttons = document.querySelectorAll('.btn, .download-btn');
-        buttons.forEach(button => {
-            button.addEventListener('mousedown', function() {
-                this.style.transform = 'scale(0.95)';
-            });
-            button.addEventListener('mouseup', function() {
-                this.style.transform = '';
-            });
-            button.addEventListener('mouseleave', function() {
-                this.style.transform = '';
-            });
-        });
-
-        // Inisialisasi file upload
-        const fileUploadManager = initFileUpload();
-        
-        // Update form submission untuk menyimpan data ke localStorage
-        const form = document.getElementById('complaint-form');
-        const submitButton = document.getElementById('submit-button');
-        const submitText = document.getElementById('submit-text');
-        const submitLoading = document.getElementById('submit-loading');
-        
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Validasi form
-            if (!validateForm()) {
-                showToast('Harap perbaiki kesalahan pada form sebelum mengirim.', 'error');
-                return;
-            }
-            
-            // Tampilkan loading state
-            submitText.style.display = 'none';
-            submitLoading.style.display = 'inline';
-            submitButton.disabled = true;
-            loadingOverlay.classList.add('active');
-            
-            // Ambil data dari form
-            const formData = new FormData(form);
-            const complaintData = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                phone: formData.get('phone'),
-                location: formData.get('location'),
-                category: formData.get('category'),
-                description: formData.get('description'),
-                images: []
-            };
-            
-            // Generate complaint ID
-            const complaintId = 'ADU-' + Date.now();
-            
-            try {
-                // Upload files jika ada
-                const uploadedFiles = fileUploadManager.getUploadedFiles();
-                if (uploadedFiles.length > 0 && firebaseInitialized) {
-                    const uploadedUrls = await uploadFilesToFirebase(uploadedFiles, complaintId);
-                    complaintData.images = uploadedUrls;
-                }
-                
-                // Simpan ke localStorage
-                saveComplaintToLocal(complaintData);
-                
-                // Perbarui tampilan daftar pengaduan
-                displayComplaints();
-                
-                // Perbarui statistik
-                updateComplaintStats();
-                
-                // Kirim data ke Formspree
-                const formspreeFormData = new FormData();
-                formspreeFormData.append('name', complaintData.name);
-                formspreeFormData.append('email', complaintData.email);
-                formspreeFormData.append('phone', complaintData.phone || '');
-                formspreeFormData.append('location', complaintData.location);
-                formspreeFormData.append('category', complaintData.category);
-                formspreeFormData.append('description', complaintData.description);
-                formspreeFormData.append('complaintId', complaintId);
-                
-                // Tambahkan info tentang file yang diupload
-                if (complaintData.images.length > 0) {
-                    formspreeFormData.append('attachments', `${complaintData.images.length} file terlampir`);
-                    complaintData.images.forEach((img, index) => {
-                        formspreeFormData.append(`attachment_${index + 1}`, img.url);
-                    });
-                }
-                
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formspreeFormData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        showToast('Pengaduan berhasil dikirim!', 'success');
-                        form.reset();
-                        fileUploadManager.clearFiles();
-                        map.setView([-6.2088, 106.8456], 13); // Reset map to default location
-                        marker.setLatLng([-6.2088, 106.8456]);
-                        updateLocationInput();
-                    } else {
-                        showToast('Terjadi kesalahan saat mengirim pengaduan. Silakan coba lagi.', 'error');
-                    }
-                })
-                .catch(error => {
-                    showToast('Terjadi kesalahan saat mengirim pengaduan. Silakan coba lagi.', 'error');
-                    console.error('Error:', error);
-                });
-                
-            } catch (error) {
-                console.error('Error processing complaint:', error);
-                showToast('Terjadi kesalahan saat memproses pengaduan. Silakan coba lagi.', 'error');
-            } finally {
-                // Sembunyikan loading state
-                submitText.style.display = 'inline';
-                submitLoading.style.display = 'none';
-                submitButton.disabled = false;
-                loadingOverlay.classList.remove('active');
-            }
-        });
-        
-        // Event listener untuk panel admin
+        // Basic functionality sebelum JS utama dimuat
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi statistik
-            updateComplaintStatistics();
+            // Navigation toggle
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            const navClose = document.getElementById('nav-close');
+            const navOverlay = document.getElementById('nav-overlay');
             
-            // Inisialisasi peta
-            initMap();
-            
-            // Inisialisasi social sharing
-            initSocialSharing();
-            
-            // Tampilkan daftar pengaduan
-            displayComplaints();
-            
-            // Toggle panel admin
-            const adminToggle = document.getElementById('admin-toggle');
-            const adminPanel = document.getElementById('admin-panel');
-            
-            adminToggle.addEventListener('click', function() {
-                adminPanel.classList.toggle('active');
-            });
-            
-            // Update statistik dari input admin
-            const updateStatsBtn = document.getElementById('update-stats-btn');
-            updateStatsBtn.addEventListener('click', function() {
-                const total = parseInt(document.getElementById('total-input').value) || 0;
-                const processed = parseInt(document.getElementById('processed-input').value) || 0;
-                const resolved = parseInt(document.getElementById('resolved-input').value) || 0;
-                
-                // Coba simpan ke Firebase, jika gagal gunakan localStorage
-                const firebaseSuccess = saveStatsToFirebase(total, processed, resolved);
-                if (!firebaseSuccess) {
-                    saveStatsToLocalStorage(total, processed, resolved);
-                }
-                
-                // Update tampilan
-                animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText) || 0, total, 1000);
-                animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText) || 0, processed, 1000);
-                animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText) || 0, resolved, 1000);
-                
-                // Reset form
-                document.getElementById('total-input').value = '';
-                document.getElementById('processed-input').value = '';
-                document.getElementById('resolved-input').value = '';
-            });
-            
-            // Auto increase statistik
-            const autoIncreaseBtn = document.getElementById('auto-increase-btn');
-            autoIncreaseBtn.addEventListener('click', function() {
-                const currentTotal = parseInt(document.getElementById('total-complaints').innerText.replace(/,/g, '')) || 0;
-                const currentProcessed = parseInt(document.getElementById('processed-complaints').innerText.replace(/,/g, '')) || 0;
-                const currentResolved = parseInt(document.getElementById('resolved-complaints').innerText.replace(/,/g, '')) || 0;
-                
-                const newTotal = currentTotal + Math.floor(Math.random() * 10) + 1;
-                const newProcessed = currentProcessed + Math.floor(Math.random() * 8) + 1;
-                const newResolved = currentResolved + Math.floor(Math.random() * 5) + 1;
-                
-                // Coba simpan ke Firebase, jika gagal gunakan localStorage
-                const firebaseSuccess = saveStatsToFirebase(newTotal, newProcessed, newResolved);
-                if (!firebaseSuccess) {
-                    saveStatsToLocalStorage(newTotal, newProcessed, newResolved);
-                }
-                
-                // Update tampilan
-                animateValue('total-complaints', currentTotal, newTotal, 1000);
-                animateValue('processed-complaints', currentProcessed, newProcessed, 1000);
-                animateValue('resolved-complaints', currentResolved, newResolved, 1000);
-            });
-            
-            // Reset statistik
-            const resetStatsBtn = document.getElementById('reset-stats-btn');
-            resetStatsBtn.addEventListener('click', function() {
-                // Coba simpan ke Firebase, jika gagal gunakan localStorage
-                const firebaseSuccess = saveStatsToFirebase(0, 0, 0);
-                if (!firebaseSuccess) {
-                    saveStatsToLocalStorage(0, 0, 0);
-                }
-                
-                // Update tampilan
-                animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText.replace(/,/g, '')) || 0, 0, 1000);
-                animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText.replace(/,/g, '')) || 0, 0, 1000);
-                animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText.replace(/,/g, '')) || 0, 0, 1000);
-            });
-            
-            // Update statistik setiap 30 detik
-            setInterval(updateComplaintStatistics, 30000);
-            
-            // Real-time listener untuk Firebase
-            if (firebaseInitialized) {
-                db.collection("stats").doc("complaintStats")
-                .onSnapshot((doc) => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        document.getElementById('total-complaints').innerText = data.total.toLocaleString('id-ID');
-                        document.getElementById('processed-complaints').innerText = data.processed.toLocaleString('id-ID');
-                        document.getElementById('resolved-complaints').innerText = data.resolved.toLocaleString('id-ID');
-                    }
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    navMenu.classList.add('active');
+                    navOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 });
             }
             
-            // Pencarian dan filter pengaduan
-            document.getElementById('search-complaints').addEventListener('input', filterComplaints);
-            document.getElementById('filter-category').addEventListener('change', filterComplaints);
-            document.getElementById('filter-status').addEventListener('change', filterComplaints);
-            document.getElementById('filter-date').addEventListener('change', filterComplaints);
-        });
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('SW registered successfully with scope: ', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('SW registration failed: ', error);
-                    });
-            });
-        }
-
-        // Detect jika di standalone mode
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('Running as PWA');
-            document.body.classList.add('pwa-mode');
-        }
-
-        // Beforeinstallprompt event
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log('PWA dapat diinstall');
-        });
-
-        // Tangkap error images
-        document.addEventListener('error', function(e) {
-            if (e.target.tagName === 'IMG') {
-                e.target.style.display = 'none';
+            if (navClose && navOverlay) {
+                const closeNav = function() {
+                    navMenu.classList.remove('active');
+                    navOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                };
+                
+                navClose.addEventListener('click', closeNav);
+                navOverlay.addEventListener('click', closeNav);
             }
-        }, true);
-
-        // Animasi scroll halus untuk anchor link
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+            
+            // Smooth scrolling untuk anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
             });
+            
+            // Basic form validation
+            const form = document.getElementById('complaint-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Validasi dasar akan ditangani oleh module utama
+                });
+            }
         });
     </script>
 </body>
