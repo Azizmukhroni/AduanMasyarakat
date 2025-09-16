@@ -1278,11 +1278,13 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         
         .complaint-category {
             font-weight: 600;
             color: #2c3e50;
+            margin-bottom: 5px;
         }
         
         .complaint-date {
@@ -1321,11 +1323,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .complaint-id {
             font-size: 0.8rem;
             color: #7f8c8d;
+            margin-bottom: 5px;
         }
         
         .no-complaints {
@@ -1496,6 +1500,19 @@
             background-color: #e74c3c;
             color: white;
         }
+        
+        /* Checkbox styling */
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            margin-top: 3px;
+        }
     </style>
 </head>
 <body>
@@ -1647,17 +1664,17 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <i class="fas fa-inbox stat-icon"></i>
-                        <span class="stat-number" id="total-complaints">0</span>
+                        <span class="stat-number" id="total-complaints">1256</span>
                         <span class="stat-label">Total Pengaduan Masuk</span>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-tasks stat-icon"></i>
-                        <span class="stat-number" id="processed-complaints">0</span>
+                        <span class="stat-number" id="processed-complaints">843</span>
                         <span class="stat-label">Sedang Diproses</span>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-check-circle stat-icon"></i>
-                        <span class="stat-number" id="resolved-complaints">0</span>
+                        <span class="stat-number" id="resolved-complaints">672</span>
                         <span class="stat-label">Terselesaikan</span>
                     </div>
                 </div>
@@ -1712,7 +1729,24 @@
                                 <h3 style="text-align: center; margin-bottom: 20px; color: #2c3e50;">Daftar Pengaduan</h3>
                                 
                                 <div id="complaints-container">
-                                    <!-- Will be populated by JavaScript -->
+                                    <div class="complaint-item">
+                                        <h4>Infrastruktur</h4>
+                                        <p>Jalan berlubang di Jl. Merdeka No. 45, perlu perbaikan segera...</p>
+                                        <p><small>12 Mar 2025</small></p>
+                                        <span class="status process">Diproses</span>
+                                    </div>
+                                    <div class="complaint-item">
+                                        <h4>Kebersihan</h4>
+                                        <p>Tumpukan sampah di RT 05/RW 02 sudah 3 hari tidak diangkut...</p>
+                                        <p><small>10 Mar 2025</small></p>
+                                        <span class="status done">Selesai</span>
+                                    </div>
+                                    <div class="complaint-item">
+                                        <h4>Keamanan</h4>
+                                        <p>Lampu jalan mati di Jl. Flamboyan, membuat gelap dan rawan...</p>
+                                        <p><small>8 Mar 2025</small></p>
+                                        <span class="status process">Diproses</span>
+                                    </div>
                                 </div>
                                 
                                 <div class="floating-btn" id="new-complaint-btn" aria-label="Buat pengaduan baru">
@@ -1729,7 +1763,7 @@
             <div class="container">
                 <h2 class="section-title">Buat Pengaduan Baru</h2>
                 <div class="form-container">
-                    <form action= "" method="POST" id="complaint-form" enctype="multipart/form-data">
+                    <form action="" method="POST" id="complaint-form" enctype="multipart/form-data">
                         <input type="hidden" name="_subject" value="Pengaduan Baru dari Website">
                         <input type="hidden" name="_replyto" value="">
                         <input type="hidden" name="_format" value="plain">
@@ -1867,15 +1901,15 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Konfigurasi Firebase yang benar
+        // Konfigurasi Firebase
         const firebaseConfig = {
-            apiKey: 
-            authDomain: 
-            projectId: 
-            storageBucket: 
-            messagingSenderId: 
-            appId: 
-            measurementId: "G-MEASUREMENT_ID"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id",
+            measurementId: "G-XXXXXXXXXX"
         };
         
         // Inisialisasi Firebase
@@ -1949,12 +1983,6 @@
                 const defaultLocation = [-6.2088, 106.8456];
                 
                 // Inisialisasi peta
-                const mapContainer = document.getElementById('location-map');
-                if (!mapContainer) {
-                    console.error("Map container not found!");
-                    return;
-                }
-                
                 map = L.map('location-map').setView(defaultLocation, 13);
                 
                 // Tambahkan tile layer (OpenStreetMap)
@@ -2084,9 +2112,9 @@
                 .then((doc) => {
                     if (doc.exists) {
                         const data = doc.data();
-                        animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText) || 0, data.total, 1000);
-                        animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText) || 0, data.processed, 1000);
-                        animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText) || 0, data.resolved, 1000);
+                        document.getElementById('total-complaints').innerText = data.total;
+                        document.getElementById('processed-complaints').innerText = data.processed;
+                        document.getElementById('resolved-complaints').innerText = data.resolved;
                     } else {
                         // Buat dokumen default jika tidak ada
                         db.collection("stats").doc("complaintStats").set({
@@ -2123,64 +2151,9 @@
                 resolved: 672
             };
             
-            animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText) || 0, stats.total, 1000);
-            animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText) || 0, stats.processed, 1000);
-            animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText) || 0, stats.resolved, 1000);
-        }
-        
-        // Fungsi untuk menyimpan statistik ke Firebase
-        function saveStatsToFirebase(total, processed, resolved) {
-            if (!firebaseInitialized) return false;
-            
-            db.collection("stats").doc("complaintStats").set({
-                total: total,
-                processed: processed,
-                resolved: resolved,
-                lastUpdated: new Date()
-            })
-            .then(() => {
-                console.log("Statistik berhasil disimpan ke Firebase");
-                showToast("Statistik berhasil diperbarui!", "success");
-                return true;
-            })
-            .catch((error) => {
-                console.error("Error menyimpan statistik: ", error);
-                showToast("Gagal menyimpan ke Firebase", "error");
-                return false;
-            });
-        }
-        
-        // Fungsi untuk menyimpan statistik ke localStorage
-        function saveStatsToLocalStorage(total, processed, resolved) {
-            const stats = {
-                total: total,
-                processed: processed,
-                resolved: resolved,
-                lastUpdated: new Date().toISOString()
-            };
-            
-            localStorage.setItem('complaintStats', JSON.stringify(stats));
-            showToast("Statistik berhasil diperbarui!", "success");
-            return true;
-        }
-        
-        // Fungsi animasi angka
-        function animateValue(id, start, end, duration) {
-            const element = document.getElementById(id);
-            if (!element) return;
-            
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const value = Math.floor(progress * (end - start) + start);
-                element.innerHTML = value.toLocaleString('id-ID');
-                
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
+            document.getElementById('total-complaints').innerText = stats.total;
+            document.getElementById('processed-complaints').innerText = stats.processed;
+            document.getElementById('resolved-complaints').innerText = stats.resolved;
         }
         
         // Fungsi untuk menampilkan toast notification
@@ -2295,11 +2268,11 @@
                 
                 complaintCard.innerHTML = `
                     <div class="complaint-header">
-                        <span class="complaint-category">${escapeHtml(getCategoryLabel(complaint.category))}</span>
+                        <span class="complaint-category">${getCategoryLabel(complaint.category)}</span>
                         <span class="complaint-date">${date}</span>
                     </div>
                     <div class="complaint-description">
-                        ${escapeHtml(complaint.description)}
+                        ${complaint.description}
                     </div>
                     ${imagesHTML}
                     <div class="complaint-footer">
@@ -2428,10 +2401,10 @@
             // Hitung pengaduan yang selesai
             const resolvedComplaints = complaints.filter(complaint => complaint.status === 'done').length;
             
-            // Update elemen HTML dengan animasi
-            animateValue('total-complaints', 0, totalComplaints, 1000);
-            animateValue('processed-complaints', 0, processedComplaints, 1000);
-            animateValue('resolved-complaints', 0, resolvedComplaints, 1000);
+            // Update elemen HTML
+            document.getElementById('total-complaints').innerText = totalComplaints;
+            document.getElementById('processed-complaints').innerText = processedComplaints;
+            document.getElementById('resolved-complaints').innerText = resolvedComplaints;
         }
 
         // Fungsi untuk menampilkan daftar pengaduan
@@ -2469,8 +2442,8 @@
                 
                 complaintsHTML += `
                     <div class="complaint-item">
-                        <h4>${escapeHtml(getCategoryLabel(complaint.category))}</h4>
-                        <p>${escapeHtml(complaint.description.substring(0, 60))}${complaint.description.length > 60 ? '...' : ''}</p>
+                        <h4>${getCategoryLabel(complaint.category)}</h4>
+                        <p>${complaint.description.substring(0, 60)}${complaint.description.length > 60 ? '...' : ''}</p>
                         <p><small>${date}</small></p>
                         <span class="status ${statusClass}">${statusText}</span>
                     </div>
@@ -2920,15 +2893,37 @@
                 const resolved = parseInt(document.getElementById('resolved-input').value) || 0;
                 
                 // Coba simpan ke Firebase, jika gagal gunakan localStorage
-                const firebaseSuccess = saveStatsToFirebase(total, processed, resolved);
-                if (!firebaseSuccess) {
-                    saveStatsToLocalStorage(total, processed, resolved);
+                if (firebaseInitialized) {
+                    db.collection("stats").doc("complaintStats").set({
+                        total: total,
+                        processed: processed,
+                        resolved: resolved,
+                        lastUpdated: new Date()
+                    })
+                    .then(() => {
+                        console.log("Statistik berhasil disimpan ke Firebase");
+                        showToast("Statistik berhasil diperbarui!", "success");
+                    })
+                    .catch((error) => {
+                        console.error("Error menyimpan statistik: ", error);
+                        showToast("Gagal menyimpan ke Firebase", "error");
+                    });
+                } else {
+                    // Simpan ke localStorage
+                    const stats = {
+                        total: total,
+                        processed: processed,
+                        resolved: resolved,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('complaintStats', JSON.stringify(stats));
+                    showToast("Statistik berhasil diperbarui!", "success");
                 }
                 
                 // Update tampilan
-                animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText) || 0, total, 1000);
-                animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText) || 0, processed, 1000);
-                animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText) || 0, resolved, 1000);
+                document.getElementById('total-complaints').innerText = total;
+                document.getElementById('processed-complaints').innerText = processed;
+                document.getElementById('resolved-complaints').innerText = resolved;
                 
                 // Reset form
                 document.getElementById('total-input').value = '';
@@ -2939,39 +2934,63 @@
             // Auto increase statistik
             const autoIncreaseBtn = document.getElementById('auto-increase-btn');
             autoIncreaseBtn.addEventListener('click', function() {
-                const currentTotal = parseInt(document.getElementById('total-complaints').innerText.replace(/,/g, '')) || 0;
-                const currentProcessed = parseInt(document.getElementById('processed-complaints').innerText.replace(/,/g, '')) || 0;
-                const currentResolved = parseInt(document.getElementById('resolved-complaints').innerText.replace(/,/g, '')) || 0;
+                const currentTotal = parseInt(document.getElementById('total-complaints').innerText) || 0;
+                const currentProcessed = parseInt(document.getElementById('processed-complaints').innerText) || 0;
+                const currentResolved = parseInt(document.getElementById('resolved-complaints').innerText) || 0;
                 
                 const newTotal = currentTotal + Math.floor(Math.random() * 10) + 1;
                 const newProcessed = currentProcessed + Math.floor(Math.random() * 8) + 1;
                 const newResolved = currentResolved + Math.floor(Math.random() * 5) + 1;
                 
-                // Coba simpan ke Firebase, jika gagal gunakan localStorage
-                const firebaseSuccess = saveStatsToFirebase(newTotal, newProcessed, newResolved);
-                if (!firebaseSuccess) {
-                    saveStatsToLocalStorage(newTotal, newProcessed, newResolved);
-                }
-                
                 // Update tampilan
-                animateValue('total-complaints', currentTotal, newTotal, 1000);
-                animateValue('processed-complaints', currentProcessed, newProcessed, 1000);
-                animateValue('resolved-complaints', currentResolved, newResolved, 1000);
+                document.getElementById('total-complaints').innerText = newTotal;
+                document.getElementById('processed-complaints').innerText = newProcessed;
+                document.getElementById('resolved-complaints').innerText = newResolved;
+                
+                // Simpan perubahan
+                if (firebaseInitialized) {
+                    db.collection("stats").doc("complaintStats").set({
+                        total: newTotal,
+                        processed: newProcessed,
+                        resolved: newResolved,
+                        lastUpdated: new Date()
+                    });
+                } else {
+                    const stats = {
+                        total: newTotal,
+                        processed: newProcessed,
+                        resolved: newResolved,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('complaintStats', JSON.stringify(stats));
+                }
             });
             
             // Reset statistik
             const resetStatsBtn = document.getElementById('reset-stats-btn');
             resetStatsBtn.addEventListener('click', function() {
-                // Coba simpan ke Firebase, jika gagal gunakan localStorage
-                const firebaseSuccess = saveStatsToFirebase(0, 0, 0);
-                if (!firebaseSuccess) {
-                    saveStatsToLocalStorage(0, 0, 0);
-                }
-                
                 // Update tampilan
-                animateValue('total-complaints', parseInt(document.getElementById('total-complaints').innerText.replace(/,/g, '')) || 0, 0, 1000);
-                animateValue('processed-complaints', parseInt(document.getElementById('processed-complaints').innerText.replace(/,/g, '')) || 0, 0, 1000);
-                animateValue('resolved-complaints', parseInt(document.getElementById('resolved-complaints').innerText.replace(/,/g, '')) || 0, 0, 1000);
+                document.getElementById('total-complaints').innerText = 0;
+                document.getElementById('processed-complaints').innerText = 0;
+                document.getElementById('resolved-complaints').innerText = 0;
+                
+                // Simpan perubahan
+                if (firebaseInitialized) {
+                    db.collection("stats").doc("complaintStats").set({
+                        total: 0,
+                        processed: 0,
+                        resolved: 0,
+                        lastUpdated: new Date()
+                    });
+                } else {
+                    const stats = {
+                        total: 0,
+                        processed: 0,
+                        resolved: 0,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('complaintStats', JSON.stringify(stats));
+                }
             });
             
             // Update statistik setiap 30 detik
@@ -2983,9 +3002,9 @@
                 .onSnapshot((doc) => {
                     if (doc.exists) {
                         const data = doc.data();
-                        document.getElementById('total-complaints').innerText = data.total.toLocaleString('id-ID');
-                        document.getElementById('processed-complaints').innerText = data.processed.toLocaleString('id-ID');
-                        document.getElementById('resolved-complaints').innerText = data.resolved.toLocaleString('id-ID');
+                        document.getElementById('total-complaints').innerText = data.total;
+                        document.getElementById('processed-complaints').innerText = data.processed;
+                        document.getElementById('resolved-complaints').innerText = data.resolved;
                     }
                 });
             }
