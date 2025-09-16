@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Aplikasi - AduanMasyarakat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            max-width: 100%;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 0 15px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-disabled {
+            opacity: 0.7;
+            cursor: not-allowed !important;
+        }
+        
+        .btn-disabled:hover {
+            transform: none !important;
+            background-color: #e74c3c !important;
+        }
+        
+        .download-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .download-option {
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="download-container">
+            <a href="index.html" class="back-btn">← Kembali ke Beranda</a>
+            
+            <h1>📥 Download Aplikasi AduanMasyarakat</h1>
+            <p>Pilih platform download yang tersedia:</p>
+            
+            <div class="download-option">
+                <h2><i class="fab fa-android"></i> Android</h2>
+                <p>Aplikasi tersedia di Google Play Store</p>
+                <a href="https://play.google.com/store/apps/details?id=com.aduan.masyarakat" 
+                   class="btn" 
+                   target="_blank"
+                   onclick="alert('Jika aplikasi belum tersedia, mohon tunggu beberapa hari lagi untuk proses review Google');">
+                    <i class="fab fa-google-play"></i> Download di Google Play
+                </a>
+            </div>
+            
+            <div class="download-option">
+                <h2><i class="fab fa-apple"></i> iOS (iPhone)</h2>
+                <p>Aplikasi sedang dalam pengembangan</p>
+                <a href=""https://play.google.com/store/apps/details?id=com.aduan.masyarakat" class="btn btn-disabled" onclick="return false;">
+                    <i class="fab fa-apple"></i> Coming Soon
+                </a>
+            </div>
+            
+            <div class="download-option">
+                <h2><i class="fas fa-globe"></i> Website Version</h2>
+                <p>Anda bisa menggunakan versi website yang sudah responsive</p>
+                <a href="index.html" class="btn" style="background-color: #3498db;">
+                    <i class="fas fa-desktop"></i> Gunakan Website
+                </a>
+                <p style="font-size: 14px; margin-top: 10px;">
+                    <strong>Tip:</strong> Di browser mobile, pilih "Add to Home Screen" untuk experience seperti app
+                </p>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #ffeaa7; border-radius: 10px;">
+                <h3><i class="fas fa-info-circle"></i> Informasi Penting</h3>
+                <p>Aplikasi native sedang dalam proses review oleh Google Play Store. Proses ini biasanya memakan waktu 2-7 hari.</p>
+                <p>Sementara menunggu, Anda sudah bisa menggunakan website version yang memiliki fitur lengkap sama.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Prevent default untuk tombol disabled
+        document.querySelectorAll('.btn-disabled').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Versi iOS akan segera hadir. Mohon tunggu!');
+            });
+        });
+    </script>
+</body>
+</html>
