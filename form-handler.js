@@ -1,111 +1,73 @@
-import { uploadFilesToFirebase } from './firebase-client.js';
-import { saveComplaintToLocal, updateComplaintStats } from './complaints-manager.js';
-import { getUploadedFiles, clearFiles } from './file-upload.js';
-import { showToast } from './utils.js';
-import { formspreeConfig } from './config.js';
-
-/**
- * Menangani pengiriman form
- * @param {HTMLFormElement} form - Form element
- */
-export async function handleFormSubmission(form) {
-    const submitButton = document.getElementById('submit-button');
-    const submitText = document.getElementById('submit-text');
-    const submitLoading = document.getElementById('submit-loading');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    
-    // Tampilkan loading state
-    submitText.style.display = 'none';
-    submitLoading.style.display = 'inline';
-    submitButton.disabled = true;
-    loadingOverlay.classList.add('active');
-    
-    // Ambil data dari form
-    const formData = new FormData(form);
-    const complaintData = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone') || '',
-        location: formData.get('location'),
-        category: formData.get('category'),
-        description: formData.get('description'),
-        images: []
-    };
-    
-    // Generate complaint ID
-    const complaintId = 'ADU-' + Date.now();
-    
-    try {
-        // Upload files jika ada
-        const uploadedFiles = getUploadedFiles();
-        if (uploadedFiles.length > 0 && firebaseInitialized) {
-            const uploadedUrls = await uploadFilesToFirebase(uploadedFiles, complaintId);
-            complaintData.images = uploadedUrls;
+// form-handler.js
+document.addEventListener('DOMContentLoaded', function() {
+  const complaintForm = document.getElementById('complaint-form');
+  
+  if (complaintForm) {
+    complaintForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Tampilkan loading state
+      const submitButton = document.getElementById('submit-button');
+      const originalText = submitButton.innerHTML;
+      submitButton.innerHTML = '<span class="spinner"></span> Mengirim...';
+      submitButton.disabled = true;
+      
+      try {
+        // Ambil data dari form
+        const formData = new FormData(complaintForm);
+        const complaintData = {
+          name: formData.get('name'),
+          email: formData.get('email'),
+          phone: formData.get('phone') || '',
+          location: formData.get('location'),
+          category: formData.get('category'),
+          description: formData.get('description'),
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Simpan ke Firestore
+        const docRef = await db.collection('complaints').add(complaintData);
+        
+        // Upload file jika ada
+        const fileInput = document.getElementById('file-input');
+        if (fileInput.files.length > 0) {
+          for (let i = 0; i < fileInput.files.length; i++) {
+            const file = fileInput.files[i];
+            const storageRef = storage.ref(`complaints/${docRef.id}/${file.name}`);
+            await storageRef.put(file);
+          }
         }
         
-        // Simpan ke localStorage
-        saveComplaintToLocal(complaintData);
+        // Update statistik
+        await updateStatistics();
         
-        // Perbarui tampilan daftar pengaduan
-        displayComplaints();
-        
-        // Perbarui statistik
-        updateComplaintStats();
-        
-        // Kirim data ke Formspree
-        await sendToFormspree(complaintData, complaintId);
-        
-        // Reset form
-        form.reset();
-        clearFiles();
+        // Tampilkan pesan sukses
         showToast('Pengaduan berhasil dikirim!', 'success');
         
-    } catch (error) {
-        console.error('Error processing complaint:', error);
-        showToast('Terjadi kesalahan saat memproses pengaduan. Silakan coba lagi.', 'error');
-    } finally {
-        // Sembunyikan loading state
-        submitText.style.display = 'inline';
-        submitLoading.style.display = 'none';
+        // Reset form
+        complaintForm.reset();
+        
+      } catch (error) {
+        console.error('Error mengirim pengaduan:', error);
+        showToast('Gagal mengirim pengaduan. Silakan coba lagi.', 'error');
+      } finally {
+        // Kembalikan state tombol
+        submitButton.innerHTML = originalText;
         submitButton.disabled = false;
-        loadingOverlay.classList.remove('active');
-    }
-}
-
-/**
- * Mengirim data ke Formspree
- * @param {Object} complaintData - Data pengaduan
- * @param {string} complaintId - ID pengaduan
- */
-async function sendToFormspree(complaintData, complaintId) {
-    const formspreeFormData = new FormData();
-    formspreeFormData.append('name', complaintData.name);
-    formspreeFormData.append('email', complaintData.email);
-    formspreeFormData.append('phone', complaintData.phone);
-    formspreeFormData.append('location', complaintData.location);
-    formspreeFormData.append('category', complaintData.category);
-    formspreeFormData.append('description', complaintData.description);
-    formspreeFormData.append('complaintId', complaintId);
-    
-    // Tambahkan info tentang file yang diupload
-    if (complaintData.images.length > 0) {
-        formspreeFormData.append('attachments', `${complaintData.images.length} file terlampir`);
-        complaintData.images.forEach((img, index) => {
-            formspreeFormData.append(`attachment_${index + 1}`, img.url);
-        });
-    }
-    
-    const response = await fetch(formspreeConfig.endpoint, {
-        method: 'POST',
-        body: formspreeFormData,
-        headers: {
-            'Accept': 'application/json'
-        }
+      }
     });
-    
-    if (!response.ok) {
-        throw new Error('Formspree submission failed');
-    }
-    
-    return response;
+  }
+});
+
+async function updateStatistics() {
+  // Implementasi update statistik
+  const statsRef = db.collection('stats').doc('complaintStats');
+  const complaintsCount = await db.collection('complaints').count().get();
+  
+  await statsRef.set({
+    total: complaintsCount.data().count,
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
 }
