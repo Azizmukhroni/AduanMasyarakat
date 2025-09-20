@@ -1,27 +1,24 @@
-// firebase-config.js
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-
-// Konfigurasi Firebase Anda
+// Konfigurasi Firebase
 const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: "API_KEY_ANDA",
+  authDomain: "PROJECT_ID.firebaseapp.com",
+  projectId: "PROJECT_ID",
+  storageBucket: "PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID",
+  measurementId: "G-MEASUREMENT_ID"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Inisialisasi Firebase
+firebase.initializeApp(firebaseConfig);
 
-// Initialize Firebase services
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Inisialisasi Firestore
+const db = firebase.firestore();
 
-// Export services yang dibutuhkan
-export { app, auth, db, storage };
-export default app;
+// Inisialisasi Storage
+const storage = firebase.storage();
+
+// Export untuk digunakan di file lain
+window.firebaseApp = firebase;
+window.db = db;
+window.storage = storage;
