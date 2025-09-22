@@ -536,7 +536,7 @@
         /* File Upload Styles */
         .file-upload-container {
             margin-bottom: 25px;
-            display: block; /* Diubah dari display: none menjadi block */
+            display: block;
         }
         
         .file-upload-label {
@@ -898,14 +898,17 @@
         
         .toast.success {
             background-color: #2ecc71;
+            color: white;
         }
         
         .toast.error {
             background-color: #e74c3c;
+            color: white;
         }
         
         .toast.info {
             background-color: #3498db;
+            color: white;
         }
         
         .toast-icon {
@@ -1763,11 +1766,14 @@
             <div class="container">
                 <h2 class="section-title">Buat Pengaduan Baru</h2>
                 <div class="form-container">
-                    <form action= "https://formspree.io/f/xdklpyyj" method="POST" id="complaint-form" enctype="multipart/form-data">
+                    <form action="https://formspree.io/f/xdklpyyj" method="POST" id="complaint-form" enctype="multipart/form-data">
                         <input type="hidden" name="_subject" value="Pengaduan Baru dari Website">
                         <input type="hidden" name="_replyto" value="aduanmasyarakat5@gmail.com">
                         <input type="hidden" name="_format" value="plain">
                         <input type="text" name="_gotcha" style="display:none">
+                        
+                        <!-- Security Token -->
+                        <input type="hidden" name="security_token" id="security_token">
                         
                         <div class="form-group">
                             <label for="name">Nama Lengkap *</label>
@@ -1816,6 +1822,16 @@
                             <div class="error-message" id="description-error">Deskripsi harus diisi</div>
                         </div>
                         
+                        <!-- CAPTCHA Verification -->
+                        <div class="form-group">
+                            <label for="captcha">Verifikasi Keamanan *</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="captcha-text" style="font-size: 20px; font-weight: bold; padding: 5px 10px; background: #f0f0f0; border-radius: 4px;"></span>
+                                <input type="text" id="captcha" name="captcha" required placeholder="Masukkan kode di atas">
+                            </div>
+                            <div class="error-message" id="captcha-error">Kode verifikasi tidak sesuai</div>
+                        </div>
+                        
                         <!-- File Upload Section -->
                         <div class="file-upload-container">
                             <label class="file-upload-label">Unggah Bukti Foto (Maksimal 5 file, 5MB per file)</label>
@@ -1832,7 +1848,7 @@
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn" id="submit-button" style="width: 100%;">
+                        <button type="submit" class="btn" id="submit-button" style="width: 100%;" disabled>
                             <span id="submit-text">Kirim Pengaduan</span>
                             <span id="submit-loading" style="display: none;"><span class="spinner"></span> Mengirim...</span>
                         </button>
@@ -2099,6 +2115,19 @@
                 isValid = false;
             } else {
                 document.getElementById('description').parentElement.classList.remove('error');
+            }
+            
+            // Validasi CAPTCHA
+            const storedCaptcha = sessionStorage.getItem('form_captcha');
+            const enteredCaptcha = document.getElementById('captcha').value;
+            
+            if (!enteredCaptcha || enteredCaptcha.toUpperCase() !== storedCaptcha) {
+                document.getElementById('captcha').parentElement.parentElement.classList.add('error');
+                document.getElementById('captcha-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('captcha').parentElement.parentElement.classList.remove('error');
+                document.getElementById('captcha-error').style.display = 'none';
             }
             
             return isValid;
@@ -2657,6 +2686,21 @@
             }
         }
         
+        // Generate simple CAPTCHA
+        function generateCaptcha() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let captcha = '';
+            for (let i = 0; i < 5; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return captcha;
+        }
+        
+        // Token keamanan untuk mencegah spam
+        const generateSecurityToken = () => {
+            return Math.random().toString(36).substring(2) + Date.now().toString(36);
+        };
+        
         // DOM Elements
         const navToggle = document.getElementById('nav-toggle');
         const navMenu = document.getElementById('nav-menu');
@@ -2762,12 +2806,60 @@
         const submitText = document.getElementById('submit-text');
         const submitLoading = document.getElementById('submit-loading');
         
+        // Set token ketika halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set security token
+            const token = generateSecurityToken();
+            document.getElementById('security_token').value = token;
+            localStorage.setItem('form_token', token);
+            
+            // Set CAPTCHA
+            const captcha = generateCaptcha();
+            document.getElementById('captcha-text').textContent = captcha;
+            sessionStorage.setItem('form_captcha', captcha);
+            
+            // Enable submit button after 5 seconds
+            setTimeout(() => {
+                submitButton.disabled = false;
+            }, 5000);
+        });
+        
+        // Rate limiting - maksimal 3 submission per jam
+        function checkRateLimit() {
+            const now = Date.now();
+            const submissions = JSON.parse(localStorage.getItem('form_submissions') || '[]');
+            
+            // Hapus submission yang lebih dari 1 jam
+            const recentSubmissions = submissions.filter(time => now - time < 3600000);
+            
+            if (recentSubmissions.length >= 3) {
+                showToast('Anda telah melakukan terlalu banyak submission. Silakan coba lagi nanti.', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Cek rate limiting
+            if (!checkRateLimit()) {
+                return;
+            }
             
             // Validasi form
             if (!validateForm()) {
                 showToast('Harap perbaiki kesalahan pada form sebelum mengirim.', 'error');
+                return;
+            }
+            
+            // Validasi token
+            const storedToken = localStorage.getItem('form_token');
+            const formToken = document.getElementById('security_token').value;
+            
+            if (storedToken !== formToken) {
+                showToast('Token keamanan tidak valid. Silakan refresh halaman dan coba lagi.', 'error');
                 return;
             }
             
@@ -2809,6 +2901,12 @@
                 // Perbarui statistik
                 updateComplaintStats();
                 
+                // Tambahkan waktu submission untuk rate limiting
+                const now = Date.now();
+                const submissions = JSON.parse(localStorage.getItem('form_submissions') || '[]');
+                submissions.push(now);
+                localStorage.setItem('form_submissions', JSON.stringify(submissions));
+                
                 // Kirim data ke Formspree
                 const formspreeFormData = new FormData();
                 formspreeFormData.append('name', complaintData.name);
@@ -2842,6 +2940,16 @@
                         map.setView([-6.2088, 106.8456], 13); // Reset map to default location
                         marker.setLatLng([-6.2088, 106.8456]);
                         updateLocationInput();
+                        
+                        // Generate new security token
+                        const newToken = generateSecurityToken();
+                        document.getElementById('security_token').value = newToken;
+                        localStorage.setItem('form_token', newToken);
+                        
+                        // Generate new CAPTCHA
+                        const newCaptcha = generateCaptcha();
+                        document.getElementById('captcha-text').textContent = newCaptcha;
+                        sessionStorage.setItem('form_captcha', newCaptcha);
                     } else {
                         showToast('Terjadi kesalahan saat mengirim pengaduan. Silakan coba lagi.', 'error');
                     }
