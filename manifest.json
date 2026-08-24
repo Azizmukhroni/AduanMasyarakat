@@ -1,68 +1,122 @@
 {
   "name": "Aduan Masyarakat",
   "short_name": "AduanMasyarakat",
-  "description": "Aplikasi pengaduan masyarakat real-time",
-  "start_url": "/",
+  "description": "Aplikasi pengaduan masyarakat real-time untuk melaporkan masalah infrastruktur, kebersihan, dan keamanan di lingkungan Anda",
+  "start_url": "/?utm_source=pwa",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#3498db",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "scope": "/",
   "categories": ["social", "productivity"],
   "lang": "id",
   "dir": "ltr",
+  "version": "1.0.0",
+  "prefer_related_applications": false,
   
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/72/1006/1006771.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/96/1006/1006771.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/128/1006/1006771.png",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/144/1006/1006771.png",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/192/1006/1006771.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/384/1006/1006771.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   
   "screenshots": [
     {
-      "src": "https://via.placeholder.com/1080x1920/2c3e50/ffffff?text=Aduan+Masyarakat",
+      "src": "https://via.placeholder.com/1080x1920/2c3e50/ffffff?text=Aduan+Masyarakat+Mobile",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "https://via.placeholder.com/1920x1080/2c3e50/ffffff?text=Aduan+Masyarakat",
+      "src": "https://via.placeholder.com/1920x1080/2c3e50/ffffff?text=Aduan+Masyarakat+Desktop",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide"
     }
-  ]
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "Buat Pengaduan Baru",
+      "short_name": "Buat Aduan",
+      "description": "Buat dan laporkan pengaduan baru dengan mudah",
+      "url": "/?action=create_complaint",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/192/1006/1006771.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Lihat Pengaduan",
+      "short_name": "Lihat",
+      "description": "Lihat daftar semua pengaduan yang telah dilaporkan",
+      "url": "/?action=view_complaints",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/192/1006/1006771.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "media",
+          "accept": ["image/*", "application/pdf"]
+        }
+      ]
+    }
+  }
 }
