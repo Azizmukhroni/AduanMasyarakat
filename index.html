@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
+    <!-- PWA Manifest -->
+<link rel="manifest" href="/AduanMasyarakat/manifest.json">
+<!-- Theme color untuk browser -->
+<meta name="theme-color" content="#1976D2">
+<!-- Apple touch icon (opsional) -->
+<link rel="apple-touch-icon" href="/AduanMasyarakat/icon-192.png">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -37,7 +43,20 @@
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-        
+        <!-- Register Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/AduanMasyarakat/sw.js')
+        .then(function(registration) {
+          console.log('Service Worker berhasil didaftarkan!');
+        })
+        .catch(function(err) {
+          console.log('Gagal mendaftarkan Service Worker:', err);
+        });
+    });
+  }
+</script>
         body {
             background-color: #f5f7fa;
             color: #333;
